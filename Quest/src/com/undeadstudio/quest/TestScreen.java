@@ -4,11 +4,18 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.Array;
+import com.undeadstudio.quest.entities.AbstractEntity;
+import com.undeadstudio.quest.entities.player.Player;
+import com.undeadstudio.quest.game.Assets;
 import com.undeadstudio.quest.util.CameraHelper;
 
 public class TestScreen implements Screen {
@@ -16,20 +23,44 @@ public class TestScreen implements Screen {
 	float unitScale = 1 / 32f;
 	TiledMap map;
 	OrthogonalTiledMapRenderer renderer;
+	SpriteBatch batch;
 	OrthographicCamera camera;
 	CameraHelper cameraHelper;
+
+	Player player;
+
+	Array<AbstractEntity> entities = new Array<AbstractEntity>();
 
 	public TestScreen() {
 		init();
 	}
 
 	public void init() {
+
+		Assets.instance.init(new AssetManager());
+
 		map = new TmxMapLoader().load("levels/test.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, unitScale);
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 30, 20);
+		batch = new SpriteBatch();
+
+		float ratio = Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
+		camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH,
+				Constants.VIEWPORT_HEIGHT);
+		camera.position.set(0, 0, 0);
+		camera.update();
 		cameraHelper = new CameraHelper();
 		renderer.setView(camera);
+		batch.setProjectionMatrix(camera.combined);
+
+		addEntities();
+
+	}
+
+	public void addEntities() {
+
+		player = new Player(0, 0);
+
+		entities.add(player);
 
 	}
 
@@ -46,11 +77,16 @@ public class TestScreen implements Screen {
 	}
 
 	public void update(float deltaTime) {
+		for (AbstractEntity entity : entities) {
+			if (entity != null)
+				entity.update(deltaTime);
+		}
+
 		handleDebugInput(deltaTime);
+		handleGameInput(deltaTime);
 		cameraHelper.update(deltaTime);
 		cameraHelper.applyTo(camera);
 		camera.update();
-		renderer.setView(camera);
 	}
 
 	private void moveCamera(float x, float y) {
@@ -59,9 +95,25 @@ public class TestScreen implements Screen {
 		cameraHelper.setPosition(x, y);
 	}
 
+	private void handleGameInput(float deltaTime) {
+		int moveSpeed = 2;
+		if (Gdx.input.isKeyPressed(Keys.W))
+			player.move(0, moveSpeed * deltaTime);
+		
+		if (Gdx.input.isKeyPressed(Keys.A))
+			player.move(-moveSpeed * deltaTime, 0);
+		if (Gdx.input.isKeyPressed(Keys.S))
+			player.move(0, -moveSpeed * deltaTime);
+		if (Gdx.input.isKeyPressed(Keys.D))
+			player.move(moveSpeed * deltaTime, 0);
+	}
+
 	private void handleDebugInput(float deltaTime) {
 		if (Gdx.app.getType() != ApplicationType.Desktop)
 			return;
+
+		if (Gdx.input.isKeyPressed(Keys.ENTER))
+			cameraHelper.setTarget(cameraHelper.hasTarget() ? null : player);
 
 		// Camera Controls (move)
 		float camMoveSpeed = 5 * deltaTime;
@@ -98,14 +150,26 @@ public class TestScreen implements Screen {
 
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		renderer.setView(camera);
 		renderer.render();
+
+		batch.setProjectionMatrix(camera.combined);
+
+		batch.begin();
+		for (AbstractEntity entity : entities) {
+			if (entity != null)
+				entity.render(batch);
+		}
+
+		batch.end();
 
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
+		camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / (float) height)
+				* (float) width;
+		camera.update();
 	}
 
 	@Override

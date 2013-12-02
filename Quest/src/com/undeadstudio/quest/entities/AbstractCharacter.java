@@ -1,8 +1,10 @@
 package com.undeadstudio.quest.entities;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+public abstract class AbstractCharacter extends AbstractEntity {
 
-public class AbstractCharacter extends AbstractEntity {
+	public enum DIRECTION {
+		UP, DOWN, LEFT, RIGHT;
+	}
 
 	public String name;
 
@@ -18,17 +20,5 @@ public class AbstractCharacter extends AbstractEntity {
 
 	public int gold;
 	public int exp;
-
-	@Override
-	public void update(float deltaTime) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void render(SpriteBatch batch) {
-		// TODO Auto-generated method stub
-
-	}
 
 }
