@@ -4,9 +4,12 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -25,11 +28,12 @@ public class Level {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	CameraHelper cameraHelper;
+	ShapeRenderer shapeRenderer;
 
 	public Player player;
 	NetClient client;
 
-	Array<AbstractEntity> entities = new Array<AbstractEntity>();
+	public Array<AbstractEntity> entities = new Array<AbstractEntity>();
 
 	boolean paused = false;
 
@@ -44,6 +48,8 @@ public class Level {
 
 		map = new TmxMapLoader().load("levels/" + filename);
 		renderer = new OrthogonalTiledMapRenderer(map, unitScale);
+		shapeRenderer = new ShapeRenderer();
+		shapeRenderer.setColor(Color.RED);
 		batch = new SpriteBatch();
 
 		float ratio = Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
@@ -54,6 +60,7 @@ public class Level {
 		cameraHelper = new CameraHelper();
 		renderer.setView(camera);
 		batch.setProjectionMatrix(camera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 
 		addEntities();
 
@@ -97,6 +104,10 @@ public class Level {
 			cameraHelper.applyTo(camera);
 			camera.update();
 		}
+		
+		renderer.setView(camera);
+		batch.setProjectionMatrix(camera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 	}
 
 	private void moveCamera(float x, float y) {
@@ -164,6 +175,11 @@ public class Level {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		renderer.setView(camera);
 		renderer.render();
+
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.rect(player.bounds.x, player.bounds.y,
+				player.bounds.width, player.bounds.height);
+		shapeRenderer.end();
 
 		batch.setProjectionMatrix(camera.combined);
 

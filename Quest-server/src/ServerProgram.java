@@ -1,10 +1,16 @@
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import sun.security.x509.IPAddressName;
+
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
 
 public class ServerProgram extends Listener {
 
@@ -15,10 +21,13 @@ public class ServerProgram extends Listener {
 	public static final DEBUG debug = DEBUG.VERBOSE;
 
 	static Server server;
-	static final int port = 27960;
+	static int port = 27960;
+	static String address = "localhost";
 	static Map<Integer, Player> players = new HashMap<Integer, Player>();
 
 	public static void main(String[] args) throws IOException {
+
+		readYamlConfig();
 		server = new Server();
 		server.getKryo().register(PacketUpdateX.class);
 		server.getKryo().register(PacketUpdateY.class);
@@ -28,7 +37,27 @@ public class ServerProgram extends Listener {
 		server.start();
 		server.addListener(new ServerProgram());
 		if (debug != DEBUG.NONE)
-			System.out.println("The server is ready");
+			System.out.println("The server is ready \n" + "Address:" + address
+					+ "\n" + "Port: " + port);
+
+	}
+
+	public static void readYamlConfig() {
+		try {
+			YamlReader reader = new YamlReader(new FileReader(
+					"config/config.yml"));
+			Object object = reader.read();
+			// System.out.println(object);
+			Map map = (Map) object;
+			port = Integer.parseInt(map.get("port").toString());
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (YamlException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void connected(Connection c) {
@@ -83,4 +112,5 @@ public class ServerProgram extends Listener {
 		if (debug != DEBUG.NONE)
 			System.out.println("Connection dropped.");
 	}
+
 }
