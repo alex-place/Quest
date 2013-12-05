@@ -1,4 +1,4 @@
-package com.undeadstudio.quest.entities.events;
+package com.undeadstudio.quest.interactions;
 
 import com.undeadstudio.quest.entities.AbstractEntity;
 

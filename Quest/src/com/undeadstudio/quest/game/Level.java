@@ -3,6 +3,7 @@ package com.undeadstudio.quest.game;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
@@ -11,19 +12,23 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.undeadstudio.quest.Constants;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.entities.player.Player;
+import com.undeadstudio.quest.interactions.InteractionChecker;
 import com.undeadstudio.quest.net.NetClient;
 import com.undeadstudio.quest.util.CameraHelper;
 
-public class Level {
+public class Level extends InputAdapter {
 
 	float unitScale = 1 / 32f;
 	TiledMap map;
+	TiledMapTileLayer collisionLayer;
 	OrthogonalTiledMapRenderer renderer;
 	SpriteBatch batch;
 	OrthographicCamera camera;
@@ -31,6 +36,7 @@ public class Level {
 	ShapeRenderer shapeRenderer;
 
 	public Player player;
+	public InteractionChecker interactionChecker;
 	NetClient client;
 
 	public Array<AbstractEntity> entities = new Array<AbstractEntity>();
@@ -44,15 +50,17 @@ public class Level {
 
 	public void init(String filename) {
 
-		Assets.instance.init(new AssetManager());
+		Gdx.input.setInputProcessor(this);
 
-		map = new TmxMapLoader().load("levels/" + filename);
-		renderer = new OrthogonalTiledMapRenderer(map, unitScale);
-		shapeRenderer = new ShapeRenderer();
-		shapeRenderer.setColor(Color.RED);
+		Assets.instance.init(new AssetManager());
 		batch = new SpriteBatch();
 
-		float ratio = Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
+		map = new TmxMapLoader().load("levels/" + filename);
+		collisionLayer = (TiledMapTileLayer) map.getLayers().get(0);
+		renderer = new OrthogonalTiledMapRenderer(map, unitScale, batch);
+		shapeRenderer = new ShapeRenderer();
+		shapeRenderer.setColor(Color.RED);
+
 		camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH,
 				Constants.VIEWPORT_HEIGHT);
 		camera.position.set(0, 0, 0);
@@ -63,6 +71,7 @@ public class Level {
 		shapeRenderer.setProjectionMatrix(camera.combined);
 
 		addEntities();
+		interactionChecker = new InteractionChecker(this);
 
 		client = new NetClient(this);
 
@@ -74,15 +83,15 @@ public class Level {
 
 		entities.add(player);
 
+		cameraHelper.setTarget(player);
+
 	}
 
 	public void show() {
-		// TODO Auto-generated method stub
 
 	}
 
 	public void hide() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -96,18 +105,23 @@ public class Level {
 					entity.update(deltaTime);
 			}
 
-			client.update();
+			client.update(deltaTime);
 
 			handleDebugInput(deltaTime);
 			handleGameInput(deltaTime);
+
+			interactionChecker.checkForInteractionsWithPlayer(player,
+					player.direction);
+
 			cameraHelper.update(deltaTime);
 			cameraHelper.applyTo(camera);
 			camera.update();
+
+			renderer.setView(camera);
+			batch.setProjectionMatrix(camera.combined);
+			shapeRenderer.setProjectionMatrix(camera.combined);
 		}
-		
-		renderer.setView(camera);
-		batch.setProjectionMatrix(camera.combined);
-		shapeRenderer.setProjectionMatrix(camera.combined);
+
 	}
 
 	private void moveCamera(float x, float y) {
@@ -118,28 +132,42 @@ public class Level {
 
 	private void handleGameInput(float deltaTime) {
 		int moveSpeed = 2;
-		if (Gdx.input.isKeyPressed(Keys.W))
-			player.move(0, moveSpeed * deltaTime);
 
-		if (Gdx.input.isKeyPressed(Keys.A))
-			player.move(-moveSpeed * deltaTime, 0);
-		if (Gdx.input.isKeyPressed(Keys.S))
-			player.move(0, -moveSpeed * deltaTime);
-		if (Gdx.input.isKeyPressed(Keys.D))
-			player.move(moveSpeed * deltaTime, 0);
+		if (Gdx.input.isKeyPressed(Keys.ESCAPE)) {
+			Gdx.app.exit();
+		}
+
 		if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT))
 			moveSpeed *= 2;
-		else
-			moveSpeed = 2;
+
+		if (player.collisionWithTiles) {
+			if (Gdx.input.isKeyPressed(Keys.W))
+				player.move(0, moveSpeed * deltaTime, collisionLayer);
+			if (Gdx.input.isKeyPressed(Keys.A))
+				player.move(-moveSpeed * deltaTime, 0, collisionLayer);
+			if (Gdx.input.isKeyPressed(Keys.S))
+				player.move(0, -moveSpeed * deltaTime, collisionLayer);
+			if (Gdx.input.isKeyPressed(Keys.D))
+				player.move(moveSpeed * deltaTime, 0, collisionLayer);
+			else
+				player.move(0, 0, collisionLayer);
+		} else {
+			if (Gdx.input.isKeyPressed(Keys.W))
+				player.move(0, moveSpeed * deltaTime);
+			if (Gdx.input.isKeyPressed(Keys.A))
+				player.move(-moveSpeed * deltaTime, 0);
+			if (Gdx.input.isKeyPressed(Keys.S))
+				player.move(0, -moveSpeed * deltaTime);
+			if (Gdx.input.isKeyPressed(Keys.D))
+				player.move(moveSpeed * deltaTime, 0);
+
+		}
 
 	}
 
 	private void handleDebugInput(float deltaTime) {
 		if (Gdx.app.getType() != ApplicationType.Desktop)
 			return;
-
-		if (Gdx.input.isKeyPressed(Keys.ENTER))
-			cameraHelper.setTarget(cameraHelper.hasTarget() ? null : player);
 
 		// Camera Controls (move)
 		float camMoveSpeed = 5 * deltaTime;
@@ -170,6 +198,22 @@ public class Level {
 			cameraHelper.setZoom(1);
 	}
 
+	@Override
+	public boolean keyUp(int keycode) {
+
+		switch (keycode) {
+		case Keys.ENTER:
+			cameraHelper.setTarget(cameraHelper.hasTarget() ? null : player);
+
+			break;
+		}
+
+		// if (Gdx.input.isKeyPressed(Keys.ENTER))
+
+		return false;
+
+	}
+
 	public void render(float deltaTime) {
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -179,6 +223,18 @@ public class Level {
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.rect(player.bounds.x, player.bounds.y,
 				player.bounds.width, player.bounds.height);
+
+		for (Rectangle rec : player.boundingBoxes) {
+			if (rec != null)
+				shapeRenderer.rect(rec.x, rec.y, rec.width, rec.height);
+
+		}
+
+		for (Rectangle rec : interactionChecker.boundingBoxes) {
+			if (rec != null)
+				shapeRenderer.rect(rec.x, rec.y, rec.width, rec.height);
+		}
+
 		shapeRenderer.end();
 
 		batch.setProjectionMatrix(camera.combined);
@@ -212,5 +268,9 @@ public class Level {
 
 	public void dispose() {
 		renderer.dispose();
+		batch.dispose();
+		map.dispose();
+		shapeRenderer.dispose();
+
 	}
 }

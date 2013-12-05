@@ -1,5 +1,6 @@
 package com.undeadstudio.quest.entities;
 
+
 public abstract class AbstractCharacter extends AbstractEntity {
 
 	public enum DIRECTION {

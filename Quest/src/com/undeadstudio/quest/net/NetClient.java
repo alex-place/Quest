@@ -27,7 +27,12 @@ public class NetClient {
 		network.connect();
 	}
 
-	public void update() {
+	public void update(float deltaTime) {
+
+		for (MPPlayer mpPlayer : players.values()) {
+			mpPlayer.update(deltaTime);
+		}
+
 		// Update position
 		if (player.networkPosition.x != player.position.x) {
 			// Send the player's X value
@@ -50,14 +55,9 @@ public class NetClient {
 	public void render(SpriteBatch batch) {
 		for (MPPlayer mpPlayer : players.values()) {
 			Texture tex = Assets.instance.playerTexture;
-			TextureRegion reg = new TextureRegion(tex);
 
-			batch.draw(reg.getTexture(), mpPlayer.x + player.origin.x,
-					mpPlayer.y + player.origin.y, player.origin.x,
-					player.origin.y, player.dimension.x, player.dimension.y,
-					player.scale.x, player.scale.y, player.rotation,
-					reg.getRegionX(), reg.getRegionY(), reg.getRegionWidth(),
-					reg.getRegionHeight(), false, false);
+			batch.draw(tex, mpPlayer.position.x, mpPlayer.position.y,
+					mpPlayer.bounds.width, mpPlayer.bounds.height);
 
 		}
 	}

@@ -10,7 +10,6 @@ public class GameScreen implements Screen {
 
 	SpriteBatch batch;
 
-
 	public GameScreen() {
 		init();
 	}
@@ -22,7 +21,7 @@ public class GameScreen implements Screen {
 	}
 
 	public void update(float deltaTime) {
-			level.update(deltaTime);
+		level.update(deltaTime);
 
 	}
 
@@ -65,6 +64,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		level.dispose();
+		Assets.instance.dispose();
 	}
 
 }

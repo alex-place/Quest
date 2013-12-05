@@ -34,6 +34,6 @@ public abstract class AbstractEntity {
 
 	public abstract void render(SpriteBatch batch);
 
-	public void interact(AbstractEntity entity);
+	public abstract void interact(AbstractEntity entity);
 
 }
