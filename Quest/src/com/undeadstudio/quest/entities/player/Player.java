@@ -2,17 +2,17 @@ package com.undeadstudio.quest.entities.player;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.undeadstudio.quest.entities.AbstractCharacter;
 import com.undeadstudio.quest.entities.AbstractEntity;
-import com.undeadstudio.quest.game.Assets;
+import com.undeadstudio.quest.game.Level;
+import com.undeadstudio.quest.interactions.InteractionChecker;
+import com.undeadstudio.quest.util.Assets;
 
 public class Player extends AbstractCharacter {
+	Level level;
 
 	public static final String TAG = Player.class.getName();
 
@@ -22,15 +22,22 @@ public class Player extends AbstractCharacter {
 
 	public Vector2 networkPosition = new Vector2(0, 0);
 
-	public boolean moving = false;
-
 	public Array<Rectangle> boundingBoxes = new Array<Rectangle>();
+	public Rectangle checkBoxUp;
+	public Rectangle checkBoxDown;
+	public Rectangle checkBoxLeft;
+	public Rectangle checkBoxRight;
+
+	private InteractionChecker interactionChecker;
 
 	public Player(Vector2 position) {
 		this.position = position;
 	}
 
-	public Player(float x, float y) {
+	public Player(float x, float y, Level level) {
+		this.level = level;
+		interactionChecker = new InteractionChecker(level);
+
 		position.x = x;
 		position.y = y;
 
@@ -53,22 +60,24 @@ public class Player extends AbstractCharacter {
 
 	public void updateBoundingBoxes() {
 		boundingBoxes.clear();
-		Rectangle checkBoxUp = new Rectangle(position.x, position.y + 1,
-				bounds.width, bounds.height);
+		checkBoxUp = new Rectangle(position.x, position.y + 1, bounds.width,
+				bounds.height);
 
-		Rectangle checkBoxDown = new Rectangle(position.x, position.y + -1,
-				bounds.width, bounds.height);
+		checkBoxDown = new Rectangle(position.x, position.y + -1, bounds.width,
+				bounds.height);
 
-		Rectangle checkBoxLeft = new Rectangle(position.x - 1, position.y,
-				bounds.width, bounds.height);
+		checkBoxLeft = new Rectangle(position.x - 1, position.y, bounds.width,
+				bounds.height);
 
-		Rectangle checkBoxRight = new Rectangle(position.x + 1, position.y,
-				bounds.width, bounds.height);
+		checkBoxRight = new Rectangle(position.x + 1, position.y, bounds.width,
+				bounds.height);
 
 		boundingBoxes.add(checkBoxUp);
 		boundingBoxes.add(checkBoxDown);
 		boundingBoxes.add(checkBoxLeft);
 		boundingBoxes.add(checkBoxRight);
+		boundingBoxes.add(bounds);
+
 	}
 
 	@Override
@@ -84,56 +93,21 @@ public class Player extends AbstractCharacter {
 		this.direction = direction;
 	}
 
-	public void move(float x, float y, TiledMapTileLayer collisionLayer) {
-
-		TiledMapTile tile;
-
-		if (y == 0) {
-
-			tile = collisionLayer.getCell(MathUtils.floor(bounds.x + x),
-					MathUtils.floor(bounds.y)).getTile();
-
-			if (!tile.getProperties().containsKey("blocked")) {
-
-				position.x += x;
-				setDirection(x > 0 ? DIRECTION.RIGHT : DIRECTION.LEFT);
-			}
-		}
-		if (x == 0) {
-
-			tile = collisionLayer.getCell(MathUtils.floor(bounds.x),
-					MathUtils.floor(bounds.y + y)).getTile();
-
-			if (!tile.getProperties().containsKey("blocked")) {
-
-				position.y += y;
-				setDirection(y > 0 ? DIRECTION.UP : DIRECTION.DOWN);
-			}
-		}
-
-		bounds.set(position.x, position.y, dimension.x, dimension.y);
-		updateBoundingBoxes();
-
-	}
-
 	public void move(float x, float y) {
 
-		moving = true;
-
 		if (y == 0 & x != 0) {
-			position.x += x;
-			setDirection(x > 0 ? DIRECTION.RIGHT : DIRECTION.LEFT);
+			if (interactionChecker.isPathClearForPlayer(this, direction))
+				position.x += x;
 		}
 
 		if (x == 0 & y != 0) {
-
-			position.y += y;
-			setDirection(y > 0 ? DIRECTION.UP : DIRECTION.DOWN);
+			if (interactionChecker.isPathClearForPlayer(this, direction))
+				position.y += y;
 		}
 
 		bounds.set(position.x, position.y, dimension.x, dimension.y);
 		updateBoundingBoxes();
-
+		System.out.println(direction);
 	}
 
 	@Override

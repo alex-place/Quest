@@ -5,17 +5,19 @@ import java.util.Map;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
 import com.undeadstudio.quest.entities.player.Player;
-import com.undeadstudio.quest.game.Assets;
 import com.undeadstudio.quest.game.Level;
+import com.undeadstudio.quest.util.Assets;
 
 public class NetClient {
 	Level level;
 	Player player;
+	public static Array<Rectangle> boundingBoxes = new Array<Rectangle>();
 
 	static Network network = new Network();
-	static Map<Integer, MPPlayer> players = new HashMap<Integer, MPPlayer>();
+	public static Map<Integer, MPPlayer> players = new HashMap<Integer, MPPlayer>();
 
 	public NetClient(Level level) {
 		this.level = level;
@@ -24,7 +26,11 @@ public class NetClient {
 
 	public void init() {
 		player = level.player;
-		network.connect();
+		try {
+			network.connect();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	public void update(float deltaTime) {

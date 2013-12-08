@@ -37,7 +37,9 @@ public class Network extends Listener {
 		try {
 			client.connect(5000, ip, port, port);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Gdx.app.log("Quest Network:", "Unable to connect to server " + ip
+					+ " on port " + port);
+			// e.printStackTrace();
 		}
 	}
 
@@ -63,7 +65,7 @@ public class Network extends Listener {
 	public void received(Connection c, Object o) {
 		if (o instanceof PacketAddPlayer) {
 			PacketAddPlayer packet = (PacketAddPlayer) o;
-			MPPlayer newPlayer = new MPPlayer();
+			MPPlayer newPlayer = new MPPlayer(packet.x, packet.y);
 			NetClient.players.put(packet.id, newPlayer);
 
 		} else if (o instanceof PacketRemovePlayer) {
@@ -78,8 +80,8 @@ public class Network extends Listener {
 			PacketUpdateY packet = (PacketUpdateY) o;
 			NetClient.players.get(packet.id).y = packet.y;
 
-		} else if (o instanceof KeepAlive) {
-			// ignore internal message
+		} else if (o instanceof FrameworkMessage) {
+			// ignore internal messages
 		} else {
 			Gdx.app.log(TAG, "Unexpected packet recieved: "
 					+ o.getClass().getName());

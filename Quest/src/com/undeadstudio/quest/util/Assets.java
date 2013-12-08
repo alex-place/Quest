@@ -1,13 +1,13 @@
-package com.undeadstudio.quest.game;
+package com.undeadstudio.quest.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.utils.Disposable;
 
 public class Assets implements Disposable, AssetErrorListener {
@@ -18,7 +18,7 @@ public class Assets implements Disposable, AssetErrorListener {
 	public Texture playerTexture;
 
 	public AssetSpriteSheet spriteSheet;
-	public AssetTiledMap map;
+	public AssetFonts fonts;
 
 	private void Assets() {
 	}
@@ -28,6 +28,7 @@ public class Assets implements Disposable, AssetErrorListener {
 		// set asset manager error handler
 		assetManager.setErrorListener(this);
 		spriteSheet = new AssetSpriteSheet();
+		fonts = new AssetFonts();
 
 		playerTexture = new Texture(
 				Gdx.files.internal("data/testcharacter.png"));
@@ -46,6 +47,9 @@ public class Assets implements Disposable, AssetErrorListener {
 	public void dispose() {
 		assetManager.dispose();
 		playerTexture.dispose();
+		fonts.defaultSmall.dispose();
+		fonts.defaultNormal.dispose();
+		fonts.defaultBig.dispose();
 	}
 
 	public class AssetSpriteSheet {
@@ -65,18 +69,45 @@ public class Assets implements Disposable, AssetErrorListener {
 
 	}
 
-	public class AssetTiledMap {
+	// public class AssetTiledMap {
+	//
+	// TiledMap map;
+	//
+	// public AssetTiledMap(String filename) {
+	//
+	// }
+	//
+	// public TiledMap getMap(String filename) {
+	// return new TmxMapLoader().load("levels/test.tmx");
+	// }
+	//
+	// }
 
-		TiledMap map;
+	public class AssetFonts {
+		public final BitmapFont defaultSmall;
+		public final BitmapFont defaultNormal;
+		public final BitmapFont defaultBig;
 
-		public AssetTiledMap(String filename) {
-
+		public AssetFonts() {
+			// create three fonts using Libgdx's 15px bitmap font
+			defaultSmall = new BitmapFont(
+					Gdx.files.internal("fonts/arial-15.fnt"), true);
+			defaultNormal = new BitmapFont(
+					Gdx.files.internal("fonts/arial-15.fnt"), true);
+			defaultBig = new BitmapFont(
+					Gdx.files.internal("fonts/arial-15.fnt"), true);
+			// set font sizes
+			defaultSmall.setScale(0.75f);
+			defaultNormal.setScale(1.0f);
+			defaultBig.setScale(2.0f);
+			// enable linear texture filtering for smooth fonts
+			defaultSmall.getRegion().getTexture()
+					.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			defaultNormal.getRegion().getTexture()
+					.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			defaultBig.getRegion().getTexture()
+					.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		}
-
-		public TiledMap getMap(String filename) {
-			return new TmxMapLoader().load("levels/test.tmx");
-		}
-
 	}
 
 }

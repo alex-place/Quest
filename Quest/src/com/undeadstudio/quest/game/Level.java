@@ -13,16 +13,22 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
-import com.undeadstudio.quest.Constants;
+import com.undeadstudio.quest.entities.AbstractCharacter.DIRECTION;
 import com.undeadstudio.quest.entities.AbstractEntity;
+import com.undeadstudio.quest.entities.CellEntity;
+import com.undeadstudio.quest.entities.TestCharacter;
 import com.undeadstudio.quest.entities.player.Player;
+import com.undeadstudio.quest.headsupdisplay.HeadsUpDisplay;
 import com.undeadstudio.quest.interactions.InteractionChecker;
 import com.undeadstudio.quest.net.NetClient;
+import com.undeadstudio.quest.util.Assets;
 import com.undeadstudio.quest.util.CameraHelper;
+import com.undeadstudio.quest.util.Constants;
 
 public class Level extends InputAdapter {
 
@@ -34,14 +40,18 @@ public class Level extends InputAdapter {
 	OrthographicCamera camera;
 	CameraHelper cameraHelper;
 	ShapeRenderer shapeRenderer;
+	HeadsUpDisplay hud;
 
 	public Player player;
 	public InteractionChecker interactionChecker;
-	NetClient client;
+	public NetClient client;
 
 	public Array<AbstractEntity> entities = new Array<AbstractEntity>();
-
+	public Array<AbstractEntity> npcEntities = new Array<AbstractEntity>();
+	
+	public Array<CellEntity> cells = new Array<CellEntity>();
 	boolean paused = false;
+	TestCharacter character;
 
 	public Level(String filename) {
 		init(filename);
@@ -69,19 +79,51 @@ public class Level extends InputAdapter {
 		renderer.setView(camera);
 		batch.setProjectionMatrix(camera.combined);
 		shapeRenderer.setProjectionMatrix(camera.combined);
+		hud = new HeadsUpDisplay(this);
 
 		addEntities();
-		interactionChecker = new InteractionChecker(this);
+		// initCells();
+
+		// interactionChecker = new InteractionChecker(this);
 
 		client = new NetClient(this);
 
 	}
 
+	private void initCells() {
+		if (collisionLayer != null) {
+			// System.out.println(collisionLayer
+			// .getCell(collisionLayer.getWidth(),
+			// collisionLayer.getHeight()).getTile()
+			// .getProperties().containsKey("blocked"));
+
+			for (int x = 0; x < collisionLayer.getWidth(); x++) {
+				for (int y = 0; x < collisionLayer.getHeight(); y++) {
+					if (collisionLayer.getCell(x, y) != null
+							&& collisionLayer.getCell(x, y).getTile() != null)
+						if (collisionLayer.getCell(x, y).getTile()
+								.getProperties().containsKey("blocked")) {
+							CellEntity cell = new CellEntity(x, y,
+									collisionLayer.getCell(x, y));
+
+							cells.add(cell);
+						}
+				}
+
+			}
+		}
+	}
+
 	public void addEntities() {
 
-		player = new Player(0, 0);
+		player = new Player(0, 0, this);
+
+		character = new TestCharacter(2, 2);
 
 		entities.add(player);
+
+		entities.add(character);
+		npcEntities.add(character);
 
 		cameraHelper.setTarget(player);
 
@@ -110,8 +152,8 @@ public class Level extends InputAdapter {
 			handleDebugInput(deltaTime);
 			handleGameInput(deltaTime);
 
-			interactionChecker.checkForInteractionsWithPlayer(player,
-					player.direction);
+			// interactionChecker.checkForInteractionsWithPlayer(player,
+			// player.direction);
 
 			cameraHelper.update(deltaTime);
 			cameraHelper.applyTo(camera);
@@ -140,27 +182,21 @@ public class Level extends InputAdapter {
 		if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT))
 			moveSpeed *= 2;
 
-		if (player.collisionWithTiles) {
-			if (Gdx.input.isKeyPressed(Keys.W))
-				player.move(0, moveSpeed * deltaTime, collisionLayer);
-			if (Gdx.input.isKeyPressed(Keys.A))
-				player.move(-moveSpeed * deltaTime, 0, collisionLayer);
-			if (Gdx.input.isKeyPressed(Keys.S))
-				player.move(0, -moveSpeed * deltaTime, collisionLayer);
-			if (Gdx.input.isKeyPressed(Keys.D))
-				player.move(moveSpeed * deltaTime, 0, collisionLayer);
-			else
-				player.move(0, 0, collisionLayer);
-		} else {
-			if (Gdx.input.isKeyPressed(Keys.W))
-				player.move(0, moveSpeed * deltaTime);
-			if (Gdx.input.isKeyPressed(Keys.A))
-				player.move(-moveSpeed * deltaTime, 0);
-			if (Gdx.input.isKeyPressed(Keys.S))
-				player.move(0, -moveSpeed * deltaTime);
-			if (Gdx.input.isKeyPressed(Keys.D))
-				player.move(moveSpeed * deltaTime, 0);
-
+		if (Gdx.input.isKeyPressed(Keys.W)) {
+			player.direction = DIRECTION.UP;
+			player.move(0, moveSpeed * deltaTime);
+		}
+		if (Gdx.input.isKeyPressed(Keys.A)) {
+			player.direction = DIRECTION.LEFT;
+			player.move(-moveSpeed * deltaTime, 0);
+		}
+		if (Gdx.input.isKeyPressed(Keys.S)) {
+			player.direction = DIRECTION.DOWN;
+			player.move(0, -moveSpeed * deltaTime);
+		}
+		if (Gdx.input.isKeyPressed(Keys.D)) {
+			player.move(moveSpeed * deltaTime, 0);
+			player.direction = DIRECTION.RIGHT;
 		}
 
 	}
@@ -224,16 +260,28 @@ public class Level extends InputAdapter {
 		shapeRenderer.rect(player.bounds.x, player.bounds.y,
 				player.bounds.width, player.bounds.height);
 
+		for (AbstractEntity entity : entities) {
+			Rectangle rec = entity.bounds;
+			shapeRenderer.rect(rec.x, rec.y, rec.width, rec.height);
+
+		}
+
+		for (Rectangle rec : NetClient.boundingBoxes) {
+			shapeRenderer.rect(rec.x, rec.y, rec.width, rec.height);
+		}
+
 		for (Rectangle rec : player.boundingBoxes) {
 			if (rec != null)
 				shapeRenderer.rect(rec.x, rec.y, rec.width, rec.height);
-
 		}
 
-		for (Rectangle rec : interactionChecker.boundingBoxes) {
-			if (rec != null)
-				shapeRenderer.rect(rec.x, rec.y, rec.width, rec.height);
+		for (CellEntity cell : cells) {
+			Rectangle rec = cell.bounds;
+			shapeRenderer.rect(rec.x, rec.y, rec.width, rec.height);
 		}
+
+		shapeRenderer.rect(character.bounds.x, character.bounds.y,
+				character.bounds.width, character.bounds.height);
 
 		shapeRenderer.end();
 
@@ -248,12 +296,19 @@ public class Level extends InputAdapter {
 
 		batch.end();
 
+		batch.setProjectionMatrix(hud.camera.combined);
+		batch.begin();
+		hud.render(batch);
+		batch.end();
+
 	}
 
 	public void resize(int width, int height) {
 		camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / (float) height)
 				* (float) width;
 		camera.update();
+
+		hud.resize(width, height);
 	}
 
 	public void pause() {

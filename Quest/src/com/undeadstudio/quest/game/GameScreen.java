@@ -3,6 +3,8 @@ package com.undeadstudio.quest.game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.undeadstudio.quest.util.Assets;
+import com.undeadstudio.quest.util.Constants;
 
 public class GameScreen implements Screen {
 
@@ -16,7 +18,7 @@ public class GameScreen implements Screen {
 
 	public void init() {
 		Assets.instance.init(new AssetManager());
-		level = new Level("test.tmx");
+		level = new Level(Constants.TEST_LEVEL_01);
 
 	}
 
