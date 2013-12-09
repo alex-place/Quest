@@ -117,8 +117,6 @@ public class Player extends AbstractCharacter {
 
 	@Override
 	public void interact(AbstractEntity entity) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

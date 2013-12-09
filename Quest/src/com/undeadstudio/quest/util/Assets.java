@@ -7,6 +7,8 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -19,6 +21,7 @@ public class Assets implements Disposable, AssetErrorListener {
 
 	public AssetSpriteSheet spriteSheet;
 	public AssetFonts fonts;
+	public AssetRock rock;
 
 	private void Assets() {
 	}
@@ -27,8 +30,21 @@ public class Assets implements Disposable, AssetErrorListener {
 		this.assetManager = assetManager;
 		// set asset manager error handler
 		assetManager.setErrorListener(this);
+		assetManager.load(Constants.TEXTURE_ATLAS_OBJECTS, TextureAtlas.class);
+		// start loading assets and wait until finished
+		assetManager.finishLoading();
+
+		Gdx.app.debug(TAG,
+				"# of assets loaded: " + assetManager.getAssetNames().size);
+		for (String a : assetManager.getAssetNames()) {
+			Gdx.app.debug(TAG, "asset: " + a);
+		}
+
+		TextureAtlas atlas = assetManager.get(Constants.TEXTURE_ATLAS_OBJECTS);
+
 		spriteSheet = new AssetSpriteSheet();
 		fonts = new AssetFonts();
+		rock = new AssetRock(atlas);
 
 		playerTexture = new Texture(
 				Gdx.files.internal("data/testcharacter.png"));
@@ -69,20 +85,6 @@ public class Assets implements Disposable, AssetErrorListener {
 
 	}
 
-	// public class AssetTiledMap {
-	//
-	// TiledMap map;
-	//
-	// public AssetTiledMap(String filename) {
-	//
-	// }
-	//
-	// public TiledMap getMap(String filename) {
-	// return new TmxMapLoader().load("levels/test.tmx");
-	// }
-	//
-	// }
-
 	public class AssetFonts {
 		public final BitmapFont defaultSmall;
 		public final BitmapFont defaultNormal;
@@ -107,6 +109,14 @@ public class Assets implements Disposable, AssetErrorListener {
 					.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 			defaultBig.getRegion().getTexture()
 					.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		}
+	}
+
+	public class AssetRock {
+		public final AtlasRegion reg;
+
+		public AssetRock(TextureAtlas atlas) {
+			reg = atlas.findRegion("rock");
 		}
 	}
 

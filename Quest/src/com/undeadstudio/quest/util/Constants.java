@@ -15,4 +15,6 @@ public class Constants {
 
 	public static final float ENTITY_COLLISION_DISTANCE = 1.0f;
 
+	public static final String TEXTURE_ATLAS_OBJECTS = "images/quest.pack";
+
 }
