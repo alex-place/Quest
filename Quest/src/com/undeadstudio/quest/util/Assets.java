@@ -21,7 +21,10 @@ public class Assets implements Disposable, AssetErrorListener {
 
 	public AssetSpriteSheet spriteSheet;
 	public AssetFonts fonts;
-	public AssetRock rock;
+	public AssetFloor floor;
+	public AssetWall wall;
+	public AssetDoor door;
+	public AssetCorridor corridor;
 
 	private void Assets() {
 	}
@@ -44,10 +47,13 @@ public class Assets implements Disposable, AssetErrorListener {
 
 		spriteSheet = new AssetSpriteSheet();
 		fonts = new AssetFonts();
-		rock = new AssetRock(atlas);
-
 		playerTexture = new Texture(
 				Gdx.files.internal("data/testcharacter.png"));
+
+		floor = new AssetFloor(atlas);
+		wall = new AssetWall(atlas);
+		door = new AssetDoor(atlas);
+		corridor = new AssetCorridor(atlas);
 
 	}
 
@@ -112,11 +118,35 @@ public class Assets implements Disposable, AssetErrorListener {
 		}
 	}
 
-	public class AssetRock {
+	public class AssetFloor {
 		public final AtlasRegion reg;
 
-		public AssetRock(TextureAtlas atlas) {
+		public AssetFloor(TextureAtlas atlas) {
 			reg = atlas.findRegion("rock");
+		}
+	}
+
+	public class AssetWall {
+		public final AtlasRegion reg;
+
+		public AssetWall(TextureAtlas atlas) {
+			reg = atlas.findRegion("wall");
+		}
+	}
+
+	public class AssetDoor {
+		public final AtlasRegion reg;
+
+		public AssetDoor(TextureAtlas atlas) {
+			reg = atlas.findRegion("door");
+		}
+	}
+
+	public class AssetCorridor {
+		public final AtlasRegion reg;
+
+		public AssetCorridor(TextureAtlas atlas) {
+			reg = atlas.findRegion("corridor");
 		}
 	}
 

@@ -48,10 +48,12 @@ public class Level extends InputAdapter {
 
 	public Array<AbstractEntity> entities = new Array<AbstractEntity>();
 	public Array<AbstractEntity> npcEntities = new Array<AbstractEntity>();
-	
+
 	public Array<CellEntity> cells = new Array<CellEntity>();
 	boolean paused = false;
 	TestCharacter character;
+
+	String complex;
 
 	public Level(String filename) {
 		init(filename);
@@ -90,33 +92,9 @@ public class Level extends InputAdapter {
 
 	}
 
-	private void initCells() {
-		if (collisionLayer != null) {
-			// System.out.println(collisionLayer
-			// .getCell(collisionLayer.getWidth(),
-			// collisionLayer.getHeight()).getTile()
-			// .getProperties().containsKey("blocked"));
-
-			for (int x = 0; x < collisionLayer.getWidth(); x++) {
-				for (int y = 0; x < collisionLayer.getHeight(); y++) {
-					if (collisionLayer.getCell(x, y) != null
-							&& collisionLayer.getCell(x, y).getTile() != null)
-						if (collisionLayer.getCell(x, y).getTile()
-								.getProperties().containsKey("blocked")) {
-							CellEntity cell = new CellEntity(x, y,
-									collisionLayer.getCell(x, y));
-
-							cells.add(cell);
-						}
-				}
-
-			}
-		}
-	}
-
 	public void addEntities() {
 
-		player = new Player(0, 0, this);
+		player = new Player(0, 0);
 
 		character = new TestCharacter(2, 2);
 

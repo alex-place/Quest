@@ -17,4 +17,11 @@ public class Constants {
 
 	public static final String TEXTURE_ATLAS_OBJECTS = "images/quest.pack";
 
+	public static final int BLOCKTYPE_EMPTY = 0;
+	public static final int BLOCKTYPE_FLOOR = 1;
+	public static final int BLOCKTYPE_WALL = 2;
+	public static final int BLOCKTYPE_DOOR = 3;
+	public static final int BLOCKTYPE_CORRIDOR = 4;
+	public static final int BLOCKTYPE_BSPNODE = 5;
+
 }

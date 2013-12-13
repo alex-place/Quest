@@ -16,7 +16,7 @@ public class Main {
 			settings.maxWidth = 1024;
 			settings.maxHeight = 1024;
 			settings.debug = drawDebugOutline;
-			TexturePacker2.process(settings, "assets-raw/images",
+			TexturePacker2.process(settings, "assets-raw",
 					"../Quest-android/assets/images", "quest.pack");
 		}
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();

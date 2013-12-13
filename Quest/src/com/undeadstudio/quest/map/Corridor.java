@@ -5,16 +5,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.util.Assets;
 
-public class Rock extends Tile {
+public class Corridor extends Tile {
 
-	private TextureRegion rockRegion;
+	private TextureRegion corridorRegion;
 
-	public Rock() {
+	public Corridor(float x, float y) {
+		this.position.x = x;
+		this.position.y = y;
 		init();
 	}
 
-	private void init() {
-		rockRegion = Assets.instance.rock.reg;
+	public void init() {
+		corridorRegion = Assets.instance.corridor.reg;
 	}
 
 	@Override
@@ -25,11 +27,12 @@ public class Rock extends Tile {
 
 	@Override
 	public void render(SpriteBatch batch) {
-		TextureRegion reg = rockRegion;
+		TextureRegion reg = corridorRegion;
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x,
 				origin.y, dimension.x, dimension.y, scale.x, scale.y, rotation,
 				reg.getRegionX(), reg.getRegionY(), reg.getRegionWidth(),
 				reg.getRegionHeight(), false, false);
+
 	}
 
 	@Override

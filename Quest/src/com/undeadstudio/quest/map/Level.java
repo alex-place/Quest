@@ -1,13 +1,11 @@
 package com.undeadstudio.quest.map;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.undeadstudio.quest.entities.AbstractEntity;
-import com.undeadstudio.quest.entities.player.Player;
+import com.undeadstudio.quest.util.Constants;
+import com.undeadstudio.quest.util.LevelUtil;
 
 public class Level {
 
@@ -15,10 +13,7 @@ public class Level {
 
 	public enum BLOCK_TYPE {
 		EMPTY(0, 0, 0), // black
-		ROCK(0, 255, 0), // green
-		PLAYER_SPAWNPOINT(255, 255, 255); // white
-		// ITEM_FEATHER(255, 0, 255), // purple
-		// ITEM_GOLD_COIN(255, 255, 0); // yellow
+		ROCK(0, 255, 0); // green
 
 		private int color;
 
@@ -35,51 +30,57 @@ public class Level {
 		}
 	}
 
-	public Player player;
-
-	Array<Rock> rocks = new Array<Rock>();
+	Array<Floor> floors = new Array<Floor>();
+	Array<Wall> walls = new Array<Wall>();
+	Array<Door> doors = new Array<Door>();
+	Array<Corridor> corridors = new Array<Corridor>();
 
 	public Level() {
 		init();
 	}
 
 	private void init() {
-		convertPixmap("levels/test.png");
+		convert(LevelUtil
+				.convertTextFile("Documents/My Games/Quest/complex.txt"));
 	}
 
-	public void convertPixmap(String filename) {
-		// load image file that represents the level data
-		Pixmap pixmap = new Pixmap(Gdx.files.internal(filename));
+	public void convert(int[][] map) {
 
-		// scan pixels from top-left to bottom-right
-		int lastPixel = -1;
-		for (int pixelY = 0; pixelY < pixmap.getHeight(); pixelY++) {
-			for (int pixelX = 0; pixelX < pixmap.getWidth(); pixelX++) {
-				AbstractEntity obj = null;
-				float offsetHeight = 0;
-				// height grows from bottom to top
-				float baseHeight = pixmap.getHeight() - pixelY;
-				// get color of current pixel as 32-bit RGBA value
-				int currentPixel = pixmap.getPixel(pixelX, pixelY);
-				// find matching color value to identify block type at (x,y)
-				// point and create the corresponding game object if there is
-				// a match
-				if (BLOCK_TYPE.EMPTY.sameColor(currentPixel)) {
-					// do nothing
-				}
-				// rock
-				else if (BLOCK_TYPE.ROCK.sameColor(currentPixel)) {
-					obj = new Rock();
-					float heightIncreaseFactor = 0.25f;
-					offsetHeight = -2.5f;
-					obj.position.set(pixelX, pixelY);
-					rocks.add((Rock) obj);
+		if (map == null) {
+			Gdx.app.error(TAG, "Map conversion failed");
+			return;
+		}
 
-				}
+		AbstractEntity entity = null;
+		for (int y = 0; y < map.length; y++) {
+			for (int x = 0; x < map.length; x++) {
 
-				// Spawn player
-				else if (BLOCK_TYPE.PLAYER_SPAWNPOINT.sameColor(currentPixel)) {
-					player = new Player(new Vector2(pixelX, pixelY));
+				int type = map[x][y];
+
+				switch (type) {
+
+				case Constants.BLOCKTYPE_BSPNODE:
+				case Constants.BLOCKTYPE_FLOOR:
+
+					entity = new Floor(x, y);
+					floors.add((Floor) entity);
+
+					break;
+				case Constants.BLOCKTYPE_EMPTY:
+				case Constants.BLOCKTYPE_WALL:
+					entity = new Wall(x, y);
+					walls.add((Wall) entity);
+					break;
+				case Constants.BLOCKTYPE_DOOR:
+					entity = new Door(x, y);
+					doors.add((Door) entity);
+					break;
+				case Constants.BLOCKTYPE_CORRIDOR:
+					entity = new Corridor(x, y);
+					corridors.add((Corridor) entity);
+				default:
+
+					break;
 				}
 			}
 		}
@@ -87,18 +88,39 @@ public class Level {
 	}
 
 	public void render(SpriteBatch batch) {
+		for (Floor floor : floors) {
+			floor.render(batch);
+		}
 
-		player.render(batch);
-		for (Rock rock : rocks) {
-			rock.render(batch);
+		for (Wall wall : walls) {
+			wall.render(batch);
+		}
+
+		for (Door door : doors) {
+			door.render(batch);
+		}
+
+		for (Corridor corridor : corridors) {
+			corridor.render(batch);
 		}
 
 	}
 
 	public void update(float deltaTime) {
-		player.update(deltaTime);
-		for (Rock rock : rocks) {
+		for (Floor rock : floors) {
 			rock.update(deltaTime);
+		}
+
+		for (Wall wall : walls) {
+			wall.update(deltaTime);
+		}
+
+		for (Door door : doors) {
+			door.update(deltaTime);
+		}
+
+		for (Corridor corridor : corridors) {
+			corridor.update(deltaTime);
 		}
 	}
 
