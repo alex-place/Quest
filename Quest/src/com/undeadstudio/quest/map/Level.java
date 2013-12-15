@@ -3,7 +3,7 @@ package com.undeadstudio.quest.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
-import com.undeadstudio.quest.dungeon.CaveGenerator;
+import com.undeadstudio.quest.dungeon.CaveGen;
 import com.undeadstudio.quest.dungeon.DunGen;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.util.Constants;
@@ -43,13 +43,14 @@ public class Level {
 
 	private void init() {
 		
-//		DunGen.instance.setChanceRoom(0);
-//		DunGen.instance.generateDungeon("test", 50, 50, 500); 
+		DunGen.instance.setChanceRoom(65);
+		DunGen.instance.generateDungeon("test", 50, 50, 500); 
 
-		CaveGenerator.instance.run("cave");
+//		CaveGen.instance.setSize(100);
+//		CaveGen.instance.run("cave");
 		
 		convert(LevelUtil
-				.convertTextFile("cave"));
+				.convertTextFile("test"));
 
 	}
 

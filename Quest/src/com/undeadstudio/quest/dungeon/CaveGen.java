@@ -13,16 +13,16 @@ import com.undeadstudio.quest.util.Constants;
  * 
  * all rights belong to original author, Jim Babcock
  */
-public class CaveGenerator {
+public class CaveGen {
 
 	public static String newline = System.getProperty("line.separator");
 
 	private static final int TILE_FLOOR = 0;
 	private static final int TILE_WALL = 1;
 
-	public static final CaveGenerator instance = new CaveGenerator();
+	public static final CaveGen instance = new CaveGen();
 
-	private CaveGenerator() {
+	private CaveGen() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -35,7 +35,7 @@ public class CaveGenerator {
 
 	private int fillprob = 40;
 	private int r1_cutoff = 5, r2_cutoff = 2;
-	private int size_y = 50, size_x = 50;
+	int size_y = 10, size_x = 10;
 
 	private GenerationParams[] params_set;
 	private int generations = 3;
@@ -161,5 +161,18 @@ public class CaveGenerator {
 		printfunc();
 		printmap(filename);
 	}
+
+	public void setSize_y(int size_y) {
+		this.size_y = size_y;
+	}
+
+	public void setSize(int size) {
+		this.size_x = size;
+		this.size_y = size;
+	}
+
+	public int getSize() {
+		return size_x;
+	}	
 
 }

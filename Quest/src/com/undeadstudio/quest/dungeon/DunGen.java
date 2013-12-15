@@ -467,7 +467,7 @@ public class DunGen {
 			int newy = 0;
 			int ymod = 0;
 			int validTile = -1;
-			// 1000 chances to find a suitable object (room or corridor)..
+			// 500 chances to find a suitable object (room or corridor)..
 			// (yea, i know it's kinda ugly with a for-loop... -_-')
 			for (int testing = 0; testing < 500; testing++) {
 				newx = getRand(1, xsize - 1);
@@ -535,12 +535,23 @@ public class DunGen {
 						setCell((newx + xmod), (newy + ymod), tileDirtFloor);
 					}
 				} else if (feature >= chanceRoom) { // new corridor
+					if ((getCell(newx, newy) == tileCorridor)) {
+						validTile = getRand(0, 4);
+					}
 					if (makeCorridor((newx + xmod), (newy + ymod),
 							corridorLength, validTile)) {
 						// same thing here, add to the quota and a door
 						currentFeatures++;
 
-						setCell(newx, newy, tileDoor);
+						if (makeCorridor((newx + xmod), (newy + ymod),
+								corridorLength, validTile)) {
+							// same thing here, add to the quota and a door
+							currentFeatures++;
+						}
+
+						if (!(getCell(newx, newy) == tileCorridor)) {
+							setCell(newx, newy, tileDoor);
+						}
 					}
 				}
 			}
