@@ -31,15 +31,16 @@ public class LevelScreen implements Screen {
 		camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH,
 				Constants.VIEWPORT_HEIGHT);
 		camera.position.set(0, 0, 0);
+		camera.zoom = 10f;
 		camera.update();
 		helper = new CameraHelper();
+		helper.setZoom(4);
+		helper.setPosition(25, 20);
 		helper.applyTo(camera);
 
 		assetManager = new AssetManager();
 		Assets.instance.init(assetManager);
 		level = new Level();
-
-		// helper.setTarget(level.player);
 	}
 
 	public void update(float deltaTime) {
@@ -62,7 +63,7 @@ public class LevelScreen implements Screen {
 	public void render(float delta) {
 		update(delta);
 
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 0);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		batch.setProjectionMatrix(camera.combined);

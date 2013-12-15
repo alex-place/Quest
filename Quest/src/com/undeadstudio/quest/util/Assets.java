@@ -25,6 +25,7 @@ public class Assets implements Disposable, AssetErrorListener {
 	public AssetWall wall;
 	public AssetDoor door;
 	public AssetCorridor corridor;
+	public AssetEmpty empty;
 
 	private void Assets() {
 	}
@@ -54,6 +55,7 @@ public class Assets implements Disposable, AssetErrorListener {
 		wall = new AssetWall(atlas);
 		door = new AssetDoor(atlas);
 		corridor = new AssetCorridor(atlas);
+		empty = new AssetEmpty(atlas);
 
 	}
 
@@ -147,6 +149,14 @@ public class Assets implements Disposable, AssetErrorListener {
 
 		public AssetCorridor(TextureAtlas atlas) {
 			reg = atlas.findRegion("corridor");
+		}
+	}
+
+	public class AssetEmpty {
+		public final AtlasRegion reg;
+
+		public AssetEmpty(TextureAtlas atlas) {
+			reg = atlas.findRegion("empty");
 		}
 	}
 

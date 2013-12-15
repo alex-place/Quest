@@ -22,9 +22,7 @@ public class LevelUtil {
 					map[pixelX][pixelY] = Constants.BLOCKTYPE_EMPTY;
 				} else if (BLOCK_TYPE.ROCK.sameColor(currentPixel)) {
 					map[pixelX][pixelY] = Constants.BLOCKTYPE_FLOOR;
-				}
-
-				else {
+				} else {
 					map[pixelX][pixelY] = Constants.BLOCKTYPE_EMPTY;
 					Gdx.app.error(
 							TAG,
@@ -34,12 +32,11 @@ public class LevelUtil {
 				}
 			}
 		}
-
 		return map;
-
 	}
 
 	public static int[][] convertTextFile(String filename) {
+		filename = "Documents/My Games/Quest/levels/" + filename + ".txt";
 		String file = null;
 		int[][] result = null;
 
@@ -50,22 +47,14 @@ public class LevelUtil {
 		}
 
 		if (file != null) {
-			System.out.println(file);
-
 			int width = 0;
 			int height = 0;
 
 			Scanner scanner = new Scanner(file);
-
 			width = scanner.nextLine().split(" ").length;
 			height = width;
-
 			result = new int[width][height];
-
-			System.out.println(width + " " + height);
-
 			scanner.close();
-
 			scanner = new Scanner(file);
 
 			for (int x = 0; x < width; x++) {
@@ -74,7 +63,6 @@ public class LevelUtil {
 						if (scanner.hasNext())
 							result[x][y] = scanner.nextInt();
 						System.out.print(result[x][y]);
-
 					} catch (Exception e) {
 						System.out.println(result[x][y]);
 						e.printStackTrace();
@@ -82,11 +70,10 @@ public class LevelUtil {
 				}
 				System.out.println();
 			}
-
 			scanner.close();
-
+		} else {
+			return null;
 		}
 		return result;
-
 	}
 }

@@ -3,6 +3,8 @@ package com.undeadstudio.quest.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
+import com.undeadstudio.quest.dungeon.CaveGenerator;
+import com.undeadstudio.quest.dungeon.DunGen;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.util.Constants;
 import com.undeadstudio.quest.util.LevelUtil;
@@ -40,8 +42,15 @@ public class Level {
 	}
 
 	private void init() {
+		
+//		DunGen.instance.setChanceRoom(0);
+//		DunGen.instance.generateDungeon("test", 50, 50, 500); 
+
+		CaveGenerator.instance.run("cave");
+		
 		convert(LevelUtil
-				.convertTextFile("Documents/My Games/Quest/complex.txt"));
+				.convertTextFile("cave"));
+
 	}
 
 	public void convert(int[][] map) {
@@ -54,19 +63,13 @@ public class Level {
 		AbstractEntity entity = null;
 		for (int y = 0; y < map.length; y++) {
 			for (int x = 0; x < map.length; x++) {
-
 				int type = map[x][y];
 
 				switch (type) {
-
-				case Constants.BLOCKTYPE_BSPNODE:
 				case Constants.BLOCKTYPE_FLOOR:
-
 					entity = new Floor(x, y);
 					floors.add((Floor) entity);
-
 					break;
-				case Constants.BLOCKTYPE_EMPTY:
 				case Constants.BLOCKTYPE_WALL:
 					entity = new Wall(x, y);
 					walls.add((Wall) entity);
@@ -78,6 +81,10 @@ public class Level {
 				case Constants.BLOCKTYPE_CORRIDOR:
 					entity = new Corridor(x, y);
 					corridors.add((Corridor) entity);
+				case Constants.BLOCKTYPE_BSPNODE:
+					break;
+				case Constants.BLOCKTYPE_EMPTY:
+					break;
 				default:
 
 					break;

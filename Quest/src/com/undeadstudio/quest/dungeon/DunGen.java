@@ -3,10 +3,16 @@ package com.undeadstudio.quest.dungeon;
 import java.util.Date; //and for getting today's date
 import java.util.Random;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.undeadstudio.quest.util.Constants;
+
 public class DunGen {
+	public static String newline = System.getProperty("line.separator");
+
 	// max size of the map
-	private int xmax = 80; // 80 columns
-	private int ymax = 25; // 25 rows
+	private int ymax = 500; // 80 columns
+	private int xmax = 500; // 25 rows
 
 	// size of the map
 	private int xsize = 0;
@@ -19,8 +25,11 @@ public class DunGen {
 	// BTW, rooms are 1st priority so actually it's enough to just define the
 	// chance
 	// of generating a room
-	private int chanceRoom = 75;
-	private int chanceCorridor = 25;
+	private int chanceRoom = 100;
+	private int chanceCorridor = 40;
+
+	private int corridorLength = 9;
+	private int corridorWidth = 9;
 
 	// our map
 	private int[] dungeon_map = {};
@@ -48,6 +57,12 @@ public class DunGen {
 	private String msgDetailedHelp = "";
 
 	String[][] tiles;
+
+	// create a new class of "dungen", so we can use all the goodies within it
+	public static final DunGen instance = new DunGen();
+
+	private DunGen() {
+	}
 
 	// setting a tile's type
 	private void setCell(int x, int y, int celltype) {
@@ -315,7 +330,13 @@ public class DunGen {
 	}
 
 	// used to print the map on the screen
-	public void showDungeon() {
+	public void showDungeon(String filename) {
+
+		String fileString = "";
+		int number = 0;
+		FileHandle file = Gdx.files.external("Documents/My Games/Quest/levels/"
+				+ filename + ".txt");
+
 		tiles = new String[ysize][xsize];
 		for (int y = 0; y < ysize; y++) {
 			for (int x = 0; x < xsize; x++) {
@@ -323,37 +344,52 @@ public class DunGen {
 				switch (getCell(x, y)) {
 				case tileUnused:
 					System.out.print(" ");
+					fileString += Constants.BLOCKTYPE_EMPTY + " ";
 					break;
 				case tileDirtWall:
 					System.out.print("+");
+					fileString += Constants.BLOCKTYPE_WALL + " ";
 					break;
 				case tileDirtFloor:
 					System.out.print(".");
+					fileString += Constants.BLOCKTYPE_FLOOR + " ";
 					break;
 				case tileStoneWall:
 					System.out.print("O");
+					fileString += Constants.BLOCKTYPE_EMPTY + " ";
 					break;
 				case tileCorridor:
 					System.out.print("#");
+					fileString += Constants.BLOCKTYPE_CORRIDOR + " ";
 					break;
 				case tileDoor:
 					System.out.print("D");
+					fileString += Constants.BLOCKTYPE_DOOR + " ";
 					break;
 				case tileUpStairs:
 					System.out.print("<");
+					fileString += Constants.BLOCKTYPE_FLOOR + " ";
 					break;
 				case tileDownStairs:
 					System.out.print(">");
+					fileString += Constants.BLOCKTYPE_FLOOR + " ";
 					break;
 				case tileChest:
 					System.out.print("*");
+					fileString += Constants.BLOCKTYPE_FLOOR + " ";
 					break;
 				}
 				;
 			}
 			if (xsize <= xmax)
 				System.out.println();
+			fileString += newline;
 		}
+
+		// System.out.println(fileString);
+
+		file.writeString(fileString, false);
+
 	}
 
 	// and here's the one generating the whole map
@@ -412,17 +448,14 @@ public class DunGen {
 
 		// start with making a room in the middle, which we can start building
 		// upon
-		makeRoom(xsize / 2, ysize / 2, 8, 6, getRand(0, 3)); // getrand saken
-																// f????r att
-																// slumpa fram
-																// riktning p??
-																// rummet
+		makeRoom(xsize / 2, ysize / 2, corridorWidth, corridorLength,
+				getRand(0, 3)); // getrand saken
 
 		// keep count of the number of "objects" we've made
 		int currentFeatures = 1; // +1 for the first room we just made
 
-		// then we sart the main loop
-		for (int countingTries = 0; countingTries < 1000; countingTries++) {
+		// then we start the main loop
+		for (int countingTries = 0; countingTries < 500; countingTries++) {
 			// check if we've reached our quota
 			if (currentFeatures == objects) {
 				break;
@@ -436,7 +469,7 @@ public class DunGen {
 			int validTile = -1;
 			// 1000 chances to find a suitable object (room or corridor)..
 			// (yea, i know it's kinda ugly with a for-loop... -_-')
-			for (int testing = 0; testing < 1000; testing++) {
+			for (int testing = 0; testing < 500; testing++) {
 				newx = getRand(1, xsize - 1);
 				newy = getRand(1, ysize - 1);
 				validTile = -1;
@@ -491,7 +524,8 @@ public class DunGen {
 				// what direction
 				int feature = getRand(0, 100);
 				if (feature <= chanceRoom) { // a new room
-					if (makeRoom((newx + xmod), (newy + ymod), 8, 6, validTile)) {
+					if (makeRoom((newx + xmod), (newy + ymod), corridorWidth,
+							corridorLength, validTile)) {
 						currentFeatures++; // add to our quota
 
 						// then we mark the wall opening with a door
@@ -501,7 +535,8 @@ public class DunGen {
 						setCell((newx + xmod), (newy + ymod), tileDirtFloor);
 					}
 				} else if (feature >= chanceRoom) { // new corridor
-					if (makeCorridor((newx + xmod), (newy + ymod), 6, validTile)) {
+					if (makeCorridor((newx + xmod), (newy + ymod),
+							corridorLength, validTile)) {
 						// same thing here, add to the quota and a door
 						currentFeatures++;
 
@@ -580,29 +615,69 @@ public class DunGen {
 		return true;
 	}
 
-	 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	 public static void main(String[] args) {
-	 // initial stuff used in making the map
-	 int x = 100;
-	 int y = 100;
-	 int dungeon_objects = 0;
-	
-	 // convert a string to a int, if there's more then one arg
-	 if (args.length >= 1)
-	 dungeon_objects = Integer.parseInt(args[0]);
-	 if (args.length >= 2)
-	 x = Integer.parseInt(args[1]);
-	
-	 if (args.length >= 3)
-	 y = Integer.parseInt(args[2]);
-	 // create a new class of "dungen", so we can use all the goodies within
-	 // it
-	 DunGen generator = new DunGen();
-	
-	 // then we create a new dungeon map
-	 if (generator.createDungeon(x, y, dungeon_objects)) {
-	 // always good to be able to see the results..
-	 generator.showDungeon();
-	 }
-	 }
+	public void generateDungeon(String filename, int x, int y, int objects) {
+
+		// then we create a new dungeon map
+		if (instance.createDungeon(x, y, objects)) {
+			// always good to be able to see the results..
+			instance.showDungeon(filename);
+		}
+	}
+
+	public int getYmax() {
+		return ymax;
+	}
+
+	public void setYmax(int ymax) {
+		this.ymax = ymax;
+	}
+
+	public int getXmax() {
+		return xmax;
+	}
+
+	public void setXmax(int xmax) {
+		this.xmax = xmax;
+	}
+
+	public int getXsize() {
+		return xsize;
+	}
+
+	public void setXsize(int xsize) {
+		this.xsize = xsize;
+	}
+
+	public int getYsize() {
+		return ysize;
+	}
+
+	public void setYsize(int ysize) {
+		this.ysize = ysize;
+	}
+
+	public int getChanceRoom() {
+		return chanceRoom;
+	}
+
+	public void setChanceRoom(int chanceRoom) {
+		this.chanceRoom = chanceRoom;
+	}
+
+	public int getCorridorLength() {
+		return corridorLength;
+	}
+
+	public void setCorridorLength(int corridorLength) {
+		this.corridorLength = corridorLength;
+	}
+
+	public int getCorridorWidth() {
+		return corridorWidth;
+	}
+
+	public void setCorridorWidth(int corridorWidth) {
+		this.corridorWidth = corridorWidth;
+	}
+
 }
