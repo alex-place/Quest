@@ -2,8 +2,9 @@ package com.undeadstudio.quest.map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.undeadstudio.quest.dungeon.CaveGen;
 import com.undeadstudio.quest.dungeon.DunGen;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.util.Constants;
@@ -36,21 +37,26 @@ public class Level {
 	Array<Wall> walls = new Array<Wall>();
 	Array<Door> doors = new Array<Door>();
 	Array<Corridor> corridors = new Array<Corridor>();
+	Array<Chest> chests = new Array<Chest>();
 
 	public Level() {
 		init();
 	}
 
 	private void init() {
-		
-		DunGen.instance.setChanceRoom(65);
-		DunGen.instance.generateDungeon("test", 50, 50, 500); 
+		String filename = "test";
 
-//		CaveGen.instance.setSize(100);
-//		CaveGen.instance.run("cave");
-		
-		convert(LevelUtil
-				.convertTextFile("test"));
+		DunGen.instance.setChanceRoom(75);
+		DunGen.instance.setMinCorridorLength(2);
+		DunGen.instance.setMaxCorridorLength(16);
+		DunGen.instance.generateDungeon(filename, 50, 50, 500);
+
+		// CaveGen.instance.setSize(40);
+		// CaveGen.instance.setR1_cutoff(5);
+		// CaveGen.instance.setR2_cutoff(1);
+		// CaveGen.instance.generateCave(filename);
+
+		convert(LevelUtil.convertTextFile(filename));
 
 	}
 
@@ -129,6 +135,16 @@ public class Level {
 
 		for (Corridor corridor : corridors) {
 			corridor.update(deltaTime);
+		}
+	}
+
+	public Vector2 findFreePlace(int blockType) {
+		switch (blockType) {
+		case Constants.BLOCKTYPE_FLOOR:
+			return floors.get(MathUtils.random(0, floors.size)).position;
+
+		default:
+			return null;
 		}
 	}
 

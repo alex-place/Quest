@@ -24,16 +24,23 @@ empty
   orig: 32, 32
   offset: 0, 0
   index: -1
-rock
+floor
   rotate: false
   xy: 103, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-wall
+rock
   rotate: false
   xy: 137, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+wall
+  rotate: false
+  xy: 171, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

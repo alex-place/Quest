@@ -8,6 +8,7 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.undeadstudio.quest.headsupdisplay.HeadsUpDisplay;
 import com.undeadstudio.quest.map.Level;
 import com.undeadstudio.quest.util.Assets;
 import com.undeadstudio.quest.util.CameraHelper;
@@ -18,6 +19,7 @@ public class LevelScreen implements Screen {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	CameraHelper helper;
+	HeadsUpDisplay hud;
 	AssetManager assetManager;
 	Level level;
 	boolean paused = false;
@@ -28,19 +30,24 @@ public class LevelScreen implements Screen {
 
 	private void init() {
 		batch = new SpriteBatch();
+
 		camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH,
 				Constants.VIEWPORT_HEIGHT);
 		camera.position.set(0, 0, 0);
 		camera.zoom = 10f;
 		camera.update();
+
 		helper = new CameraHelper();
 		helper.setZoom(4);
 		helper.setPosition(25, 20);
 		helper.applyTo(camera);
 
+		hud = new HeadsUpDisplay();
+
 		assetManager = new AssetManager();
 		Assets.instance.init(assetManager);
 		level = new Level();
+
 	}
 
 	public void update(float deltaTime) {
@@ -50,6 +57,9 @@ public class LevelScreen implements Screen {
 
 		helper.update(deltaTime);
 		helper.applyTo(camera);
+
+		hud.update();
+
 		camera.update();
 
 		if (!paused) {
@@ -69,6 +79,11 @@ public class LevelScreen implements Screen {
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		level.render(batch);
+		batch.end();
+
+		batch.setProjectionMatrix(hud.camera.combined);
+		batch.begin();
+		hud.render(batch);
 		batch.end();
 	}
 
@@ -120,6 +135,7 @@ public class LevelScreen implements Screen {
 		camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / (float) height)
 				* (float) width;
 		camera.update();
+		hud.resize(width, height);
 	}
 
 	@Override

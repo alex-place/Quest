@@ -57,8 +57,8 @@ public class LevelUtil {
 			scanner.close();
 			scanner = new Scanner(file);
 
-			for (int x = 0; x < width; x++) {
-				for (int y = 0; y < height; y++) {
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
 					try {
 						if (scanner.hasNext())
 							result[x][y] = scanner.nextInt();

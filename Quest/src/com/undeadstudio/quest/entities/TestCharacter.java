@@ -2,8 +2,6 @@ package com.undeadstudio.quest.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.undeadstudio.quest.entities.player.Player;
-import com.undeadstudio.quest.interactions.InteractionChecker;
 import com.undeadstudio.quest.util.Assets;
 
 public class TestCharacter extends AbstractCharacter {
@@ -29,7 +27,6 @@ public class TestCharacter extends AbstractCharacter {
 	public void update(float deltaTime) {
 		bounds.x = position.x;
 		bounds.y = position.y;
-		
 
 	}
 
@@ -41,9 +38,7 @@ public class TestCharacter extends AbstractCharacter {
 
 	@Override
 	public void interact(AbstractEntity entity) {
-		if (entity instanceof Player) {
-			Gdx.app.log("Debug", "interaction detected!");
-		}
+
 	}
 
 }

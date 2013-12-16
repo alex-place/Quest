@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.undeadstudio.quest.game.Level;
+import com.undeadstudio.quest.map.Level;
 import com.undeadstudio.quest.util.Assets;
 import com.undeadstudio.quest.util.Constants;
 
@@ -12,10 +12,8 @@ public class HeadsUpDisplay {
 
 	public OrthographicCamera camera;
 
-	Level level;
 
-	public HeadsUpDisplay(Level level) {
-		this.level = level;
+	public HeadsUpDisplay() {
 		init();
 	}
 

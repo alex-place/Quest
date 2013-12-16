@@ -15,56 +15,51 @@ import com.undeadstudio.quest.util.Constants;
  */
 public class CaveGen {
 
-	public static String newline = System.getProperty("line.separator");
-
-	private static final int TILE_FLOOR = 0;
-	private static final int TILE_WALL = 1;
-
-	public static final CaveGen instance = new CaveGen();
-
-	private CaveGen() {
-		// TODO Auto-generated constructor stub
-	}
-
 	private class GenerationParams {
 		int r1_cutoff, r2_cutoff;
 		int reps;
 	}
 
+	public static String newline = System.getProperty("line.separator");
+	private static final int TILE_FLOOR = 0;
+
+	private static final int TILE_WALL = 1;
+
+	public static final CaveGen instance = new CaveGen();
+
 	private int[][] grid, grid2;
 
 	private int fillprob = 40;
+
 	private int r1_cutoff = 5, r2_cutoff = 2;
 	int size_y = 10, size_x = 10;
-
 	private GenerationParams[] params_set;
-	private int generations = 3;
 
+	private int generations = 3;
 	private Random rand = new Random();
 
-	private int randpick() {
-		if (rand.nextInt(100) < fillprob)
-			return TILE_WALL;
-		else
-			return TILE_FLOOR;
+	private CaveGen() {
+		// TODO Auto-generated constructor stub
 	}
 
-	private void initmap() {
-		grid = new int[size_x][size_y];
-		grid2 = new int[size_x][size_y];
+	public void generateCave(String filename) {
+		params_set = new GenerationParams[generations];
 
-		for (int x = 1; x < size_x - 1; x++)
-			for (int y = 1; y < size_y - 1; y++)
-				grid[x][y] = randpick();
+		for (int ii = 0; ii < generations; ii++) {
+			params_set[ii] = new GenerationParams();
+			params_set[ii].r1_cutoff = r1_cutoff;
+			params_set[ii].r2_cutoff = r2_cutoff;
+			params_set[ii].reps = 10;
+		}
 
-		for (int x = 0; x < size_x; x++)
-			for (int y = 0; y < size_y; y++)
-				grid2[x][y] = TILE_WALL;
+		initmap();
 
-		for (int x = 0; x < size_x; x++)
-			grid[x][0] = grid[x][size_y - 1] = TILE_WALL;
-		for (int y = 0; y < size_y; y++)
-			grid[0][y] = grid[size_x - 1][y] = TILE_WALL;
+		for (int ii = 0; ii < generations; ii++) {
+			for (int jj = 0; jj < params_set[ii].reps; jj++)
+				generation(params_set[ii]);
+		}
+		printfunc();
+		printmap(filename);
 	}
 
 	private void generation(GenerationParams params) {
@@ -97,6 +92,28 @@ public class CaveGen {
 				grid[x][y] = grid2[x][y];
 	}
 
+	public int getSize() {
+		return size_x;
+	}
+
+	private void initmap() {
+		grid = new int[size_x][size_y];
+		grid2 = new int[size_x][size_y];
+
+		for (int x = 1; x < size_x - 1; x++)
+			for (int y = 1; y < size_y - 1; y++)
+				grid[x][y] = randpick();
+
+		for (int x = 0; x < size_x; x++)
+			for (int y = 0; y < size_y; y++)
+				grid2[x][y] = TILE_WALL;
+
+		for (int x = 0; x < size_x; x++)
+			grid[x][0] = grid[x][size_y - 1] = TILE_WALL;
+		for (int y = 0; y < size_y; y++)
+			grid[0][y] = grid[size_x - 1][y] = TILE_WALL;
+	}
+
 	private void printfunc() {
 		System.out.println("W[0](p) = rand[0,100) < " + fillprob);
 
@@ -113,8 +130,6 @@ public class CaveGen {
 	}
 
 	private void printmap(String filename) {
-		filename = "cave";
-
 		String fileString = "";
 		int number = 0;
 		FileHandle file = Gdx.files.external("Documents/My Games/Quest/levels/"
@@ -142,37 +157,24 @@ public class CaveGen {
 
 	}
 
-	public void run(String filename) {
-		params_set = new GenerationParams[generations];
-
-		for (int ii = 0; ii < generations; ii++) {
-			params_set[ii] = new GenerationParams();
-			params_set[ii].r1_cutoff = r1_cutoff;
-			params_set[ii].r2_cutoff = r2_cutoff;
-			params_set[ii].reps = 10;
-		}
-
-		initmap();
-
-		for (int ii = 0; ii < generations; ii++) {
-			for (int jj = 0; jj < params_set[ii].reps; jj++)
-				generation(params_set[ii]);
-		}
-		printfunc();
-		printmap(filename);
+	private int randpick() {
+		if (rand.nextInt(100) < fillprob)
+			return TILE_WALL;
+		else
+			return TILE_FLOOR;
 	}
 
-	public void setSize_y(int size_y) {
-		this.size_y = size_y;
+	public void setR1_cutoff(int r1_cutoff) {
+		this.r1_cutoff = r1_cutoff;
+	}
+
+	public void setR2_cutoff(int r2_cutoff) {
+		this.r2_cutoff = r2_cutoff;
 	}
 
 	public void setSize(int size) {
 		this.size_x = size;
 		this.size_y = size;
 	}
-
-	public int getSize() {
-		return size_x;
-	}	
 
 }
