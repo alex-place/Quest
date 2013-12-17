@@ -1,36 +1,33 @@
-package com.undeadstudio.quest.map;
+package com.undeadstudio.quest.tiles;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.util.Assets;
 
-public class Chest extends Tile {
+public class StairsUp extends Tile {
 
-	private TextureRegion openRegion;
-	private TextureRegion closedRegion;
+	private TextureRegion stairsUpRegion;
 
-	public boolean closed = true;
-
-	public Chest(float x, float y) {
+	public StairsUp(float x, float y) {
 		this.position.x = x;
 		this.position.y = y;
 		init();
 	}
 
 	private void init() {
-		openRegion = Assets.instance.chest.open;
-		closedRegion = Assets.instance.chest.closed;
+		stairsUpRegion = Assets.instance.stairsUp.reg;
 	}
 
 	@Override
 	public void update(float deltaTime) {
+		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void render(SpriteBatch batch) {
-		TextureRegion reg = closed ? closedRegion : openRegion;
+		TextureRegion reg = stairsUpRegion;
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x,
 				origin.y, dimension.x, dimension.y, scale.x, scale.y, rotation,
 				reg.getRegionX(), reg.getRegionY(), reg.getRegionWidth(),

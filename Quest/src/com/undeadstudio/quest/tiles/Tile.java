@@ -1,4 +1,5 @@
-package com.undeadstudio.quest.map;
+package com.undeadstudio.quest.tiles;
+
 
 import com.undeadstudio.quest.entities.AbstractEntity;
 

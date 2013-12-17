@@ -1,12 +1,21 @@
 package com.undeadstudio.quest.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.undeadstudio.quest.dungeon.DunGen;
+import com.undeadstudio.quest.dungeon.CaveGen;
 import com.undeadstudio.quest.entities.AbstractEntity;
+import com.undeadstudio.quest.tiles.Chest;
+import com.undeadstudio.quest.tiles.Corridor;
+import com.undeadstudio.quest.tiles.Door;
+import com.undeadstudio.quest.tiles.Floor;
+import com.undeadstudio.quest.tiles.StairsDown;
+import com.undeadstudio.quest.tiles.StairsUp;
+import com.undeadstudio.quest.tiles.Tile;
+import com.undeadstudio.quest.tiles.Wall;
 import com.undeadstudio.quest.util.Constants;
 import com.undeadstudio.quest.util.LevelUtil;
 
@@ -38,6 +47,7 @@ public class Level {
 	Array<Door> doors = new Array<Door>();
 	Array<Corridor> corridors = new Array<Corridor>();
 	Array<Chest> chests = new Array<Chest>();
+	Array<Tile> stairs = new Array<Tile>();
 
 	public Level() {
 		init();
@@ -46,17 +56,45 @@ public class Level {
 	private void init() {
 		String filename = "test";
 
-		DunGen.instance.setChanceRoom(75);
-		DunGen.instance.setMinCorridorLength(2);
-		DunGen.instance.setMaxCorridorLength(16);
-		DunGen.instance.generateDungeon(filename, 50, 50, 500);
+		// DunGen.instance.setChanceRoom(75);
+		// DunGen.instance.setMinCorridorLength(2);
+		// DunGen.instance.setMaxCorridorLength(16);
+		// DunGen.instance.generateDungeon(filename, 50, 50, 500);
 
-		// CaveGen.instance.setSize(40);
-		// CaveGen.instance.setR1_cutoff(5);
-		// CaveGen.instance.setR2_cutoff(1);
-		// CaveGen.instance.generateCave(filename);
+		CaveGen.instance.setSize(40);
+		CaveGen.instance.generateCave(filename);
 
 		convert(LevelUtil.convertTextFile(filename));
+
+		sprinkleGoodies();
+	}
+
+	public void sprinkleGoodies() {
+		sprinkleChests();
+
+		sprinkleStairs();
+
+	}
+
+	public void sprinkleStairs() {
+		AbstractEntity entity = null;
+		Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
+		entity = new StairsUp(freePlace.x, freePlace.y);
+		stairs.add((StairsUp) entity);
+
+		freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
+		entity = new StairsDown(freePlace.x, freePlace.y);
+		stairs.add((StairsDown) entity);
+	}
+
+	public void sprinkleChests() {
+
+		for (int x = 0; x < 10; x++) {
+			AbstractEntity entity = null;
+			Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
+			entity = new Chest(freePlace.x, freePlace.y);
+			chests.add((Chest) entity);
+		}
 
 	}
 
@@ -91,6 +129,7 @@ public class Level {
 				case Constants.BLOCKTYPE_BSPNODE:
 					break;
 				case Constants.BLOCKTYPE_EMPTY:
+
 					break;
 				default:
 
@@ -118,6 +157,16 @@ public class Level {
 			corridor.render(batch);
 		}
 
+		batch.setColor(Color.toFloatBits(255, 200, 100, 255));
+		for (Chest chest : chests) {
+			chest.render(batch);
+		}
+
+		for (Tile tile : stairs)
+			tile.render(batch);
+
+		batch.setColor(Color.WHITE);
+
 	}
 
 	public void update(float deltaTime) {
@@ -136,12 +185,21 @@ public class Level {
 		for (Corridor corridor : corridors) {
 			corridor.update(deltaTime);
 		}
+
+		for (Chest chest : chests) {
+			chest.update(deltaTime);
+		}
+
+		for (Tile tile : stairs) {
+			tile.update(deltaTime);
+		}
 	}
 
 	public Vector2 findFreePlace(int blockType) {
 		switch (blockType) {
 		case Constants.BLOCKTYPE_FLOOR:
-			return floors.get(MathUtils.random(0, floors.size)).position;
+			// return floors.get(MathUtils.random(0, floors.size)).position;
+			return floors.random().position;
 
 		default:
 			return null;

@@ -3,21 +3,21 @@ quest.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-corridor
+chest
   rotate: false
   xy: 1, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-door
+corridor
   rotate: false
   xy: 35, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-empty
+door
   rotate: false
   xy: 69, 1
   size: 32, 32
@@ -31,16 +31,37 @@ floor
   orig: 32, 32
   offset: 0, 0
   index: -1
-rock
+open
   rotate: false
   xy: 137, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-wall
+rock
   rotate: false
   xy: 171, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+stairsdown
+  rotate: false
+  xy: 205, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+stairsup
+  rotate: false
+  xy: 239, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+wall
+  rotate: false
+  xy: 273, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

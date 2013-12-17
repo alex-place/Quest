@@ -1,22 +1,23 @@
-package com.undeadstudio.quest.map;
+package com.undeadstudio.quest.tiles;
+
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.util.Assets;
 
-public class Door extends Tile {
+public class Floor extends Tile {
 
-	private TextureRegion doorRegion;
+	private TextureRegion rockRegion;
 
-	public Door(float x, float y) {
+	public Floor(float x, float y) {
 		this.position.x = x;
 		this.position.y = y;
 		init();
 	}
 
-	public void init() {
-		doorRegion = Assets.instance.door.reg;
+	private void init() {
+		rockRegion = Assets.instance.floor.reg;
 	}
 
 	@Override
@@ -27,7 +28,7 @@ public class Door extends Tile {
 
 	@Override
 	public void render(SpriteBatch batch) {
-		TextureRegion reg = doorRegion;
+		TextureRegion reg = rockRegion;
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x,
 				origin.y, dimension.x, dimension.y, scale.x, scale.y, rotation,
 				reg.getRegionX(), reg.getRegionY(), reg.getRegionWidth(),

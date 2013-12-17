@@ -139,18 +139,18 @@ public class CaveGen {
 			for (int y = 0; y < size_y; y++) {
 				switch (grid[x][y]) {
 				case TILE_WALL:
-					System.out.print(Constants.BLOCKTYPE_WALL);
+					// System.out.print(Constants.BLOCKTYPE_WALL);
 					fileString += Constants.BLOCKTYPE_WALL + " ";
 
 					break;
 				case TILE_FLOOR:
-					System.out.print(Constants.BLOCKTYPE_FLOOR);
+					// System.out.print(Constants.BLOCKTYPE_FLOOR);
 					fileString += Constants.BLOCKTYPE_FLOOR + " ";
 
 					break;
 				}
 			}
-			System.out.println();
+			// System.out.println();
 			fileString += newline;
 		}
 		file.writeString(fileString, false);

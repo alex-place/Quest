@@ -26,6 +26,8 @@ public class Assets implements Disposable, AssetErrorListener {
 	public AssetDoor door;
 	public AssetCorridor corridor;
 	public AssetChest chest;
+	public AssetStairsUp stairsUp;
+	public AssetStairsDown stairsDown;
 
 	private void Assets() {
 	}
@@ -51,11 +53,13 @@ public class Assets implements Disposable, AssetErrorListener {
 		playerTexture = new Texture(
 				Gdx.files.internal("data/testcharacter.png"));
 
+		chest = new AssetChest(atlas);
 		floor = new AssetFloor(atlas);
 		wall = new AssetWall(atlas);
 		door = new AssetDoor(atlas);
 		corridor = new AssetCorridor(atlas);
-		chest = new AssetChest(atlas);
+		stairsUp = new AssetStairsUp(atlas);
+		stairsDown = new AssetStairsDown(atlas);
 	}
 
 	@Override
@@ -152,12 +156,28 @@ public class Assets implements Disposable, AssetErrorListener {
 	}
 
 	public class AssetChest {
-		public final AtlasRegion closed;
+		public final AtlasRegion reg;
 		public final AtlasRegion open;
 
 		public AssetChest(TextureAtlas atlas) {
-			closed = atlas.findRegion("chestclosedgrayscale");
-			open = atlas.findRegion("chestopengrayscale");
+			reg = atlas.findRegion("chest");
+			open = atlas.findRegion("open");
+		}
+	}
+
+	public class AssetStairsUp {
+		public final AtlasRegion reg;
+
+		public AssetStairsUp(TextureAtlas atlas) {
+			reg = atlas.findRegion("stairsup");
+		}
+	}
+
+	public class AssetStairsDown {
+		public final AtlasRegion reg;
+
+		public AssetStairsDown(TextureAtlas atlas) {
+			reg = atlas.findRegion("stairsdown");
 		}
 	}
 

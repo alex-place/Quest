@@ -1,37 +1,38 @@
-package com.undeadstudio.quest.map;
+package com.undeadstudio.quest.tiles;
+
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.util.Assets;
 
-public class Wall extends Tile {
+public class Corridor extends Tile {
 
-	private TextureRegion wallRegion;
+	private TextureRegion corridorRegion;
 
-	public Wall(float x, float y) {
+	public Corridor(float x, float y) {
 		this.position.x = x;
 		this.position.y = y;
 		init();
 	}
 
 	public void init() {
-		wallRegion = Assets.instance.wall.reg;
+		corridorRegion = Assets.instance.corridor.reg;
 	}
 
 	@Override
 	public void update(float deltaTime) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void render(SpriteBatch batch) {
-		TextureRegion reg = wallRegion;
+		TextureRegion reg = corridorRegion;
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x,
 				origin.y, dimension.x, dimension.y, scale.x, scale.y, rotation,
 				reg.getRegionX(), reg.getRegionY(), reg.getRegionWidth(),
 				reg.getRegionHeight(), false, false);
+
 	}
 
 	@Override
