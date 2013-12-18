@@ -3,11 +3,11 @@ package com.undeadstudio.quest.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.undeadstudio.quest.dungeon.CaveGen;
 import com.undeadstudio.quest.entities.AbstractEntity;
+import com.undeadstudio.quest.entities.Monster;
 import com.undeadstudio.quest.tiles.Chest;
 import com.undeadstudio.quest.tiles.Corridor;
 import com.undeadstudio.quest.tiles.Door;
@@ -48,6 +48,7 @@ public class Level {
 	Array<Corridor> corridors = new Array<Corridor>();
 	Array<Chest> chests = new Array<Chest>();
 	Array<Tile> stairs = new Array<Tile>();
+	Array<AbstractEntity> monsters = new Array<AbstractEntity>();
 
 	public Level() {
 		init();
@@ -70,9 +71,11 @@ public class Level {
 	}
 
 	public void sprinkleGoodies() {
-		sprinkleChests();
-
 		sprinkleStairs();
+
+		sprinkleChests(10);
+
+		sprinkleMonsters(10);
 
 	}
 
@@ -87,15 +90,24 @@ public class Level {
 		stairs.add((StairsDown) entity);
 	}
 
-	public void sprinkleChests() {
+	public void sprinkleChests(int number) {
 
-		for (int x = 0; x < 10; x++) {
+		for (int x = 0; x < number; x++) {
 			AbstractEntity entity = null;
 			Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
 			entity = new Chest(freePlace.x, freePlace.y);
 			chests.add((Chest) entity);
 		}
 
+	}
+
+	public void sprinkleMonsters(int number) {
+		for (int x = 0; x < number; x++) {
+			AbstractEntity entity = null;
+			Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
+			entity = new Monster(freePlace.x, freePlace.y);
+			monsters.add((Monster) entity);
+		}
 	}
 
 	public void convert(int[][] map) {
@@ -141,6 +153,10 @@ public class Level {
 	}
 
 	public void render(SpriteBatch batch) {
+
+		/*
+		 * Draw the bottom tiles first.
+		 */
 		for (Floor floor : floors) {
 			floor.render(batch);
 		}
@@ -157,6 +173,10 @@ public class Level {
 			corridor.render(batch);
 		}
 
+		/*
+		 * Then draw the static entities.
+		 */
+
 		batch.setColor(Color.toFloatBits(255, 200, 100, 255));
 		for (Chest chest : chests) {
 			chest.render(batch);
@@ -166,6 +186,14 @@ public class Level {
 			tile.render(batch);
 
 		batch.setColor(Color.WHITE);
+
+		/*
+		 * Now draw the dynamic entities.
+		 */
+
+		for (AbstractEntity entity : monsters) {
+			entity.render(batch);
+		}
 
 	}
 
@@ -192,6 +220,10 @@ public class Level {
 
 		for (Tile tile : stairs) {
 			tile.update(deltaTime);
+		}
+
+		for (AbstractEntity entity : monsters) {
+			entity.update(deltaTime);
 		}
 	}
 

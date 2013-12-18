@@ -4,12 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Disposable;
 
 public class Assets implements Disposable, AssetErrorListener {
@@ -17,9 +15,7 @@ public class Assets implements Disposable, AssetErrorListener {
 	public static final String TAG = Assets.class.getName();
 	public static final Assets instance = new Assets();
 	public AssetManager assetManager;
-	public Texture playerTexture;
 
-	public AssetSpriteSheet spriteSheet;
 	public AssetFonts fonts;
 	public AssetFloor floor;
 	public AssetWall wall;
@@ -28,6 +24,7 @@ public class Assets implements Disposable, AssetErrorListener {
 	public AssetChest chest;
 	public AssetStairsUp stairsUp;
 	public AssetStairsDown stairsDown;
+	public AssetMonster monster;
 
 	private void Assets() {
 	}
@@ -48,10 +45,7 @@ public class Assets implements Disposable, AssetErrorListener {
 
 		TextureAtlas atlas = assetManager.get(Constants.TEXTURE_ATLAS_OBJECTS);
 
-		spriteSheet = new AssetSpriteSheet();
 		fonts = new AssetFonts();
-		playerTexture = new Texture(
-				Gdx.files.internal("data/testcharacter.png"));
 
 		chest = new AssetChest(atlas);
 		floor = new AssetFloor(atlas);
@@ -60,6 +54,7 @@ public class Assets implements Disposable, AssetErrorListener {
 		corridor = new AssetCorridor(atlas);
 		stairsUp = new AssetStairsUp(atlas);
 		stairsDown = new AssetStairsDown(atlas);
+		monster = new AssetMonster(atlas);
 	}
 
 	@Override
@@ -73,27 +68,9 @@ public class Assets implements Disposable, AssetErrorListener {
 	@Override
 	public void dispose() {
 		assetManager.dispose();
-		playerTexture.dispose();
 		fonts.defaultSmall.dispose();
 		fonts.defaultNormal.dispose();
 		fonts.defaultBig.dispose();
-	}
-
-	public class AssetSpriteSheet {
-
-		Texture tex;
-		TextureRegion[][] reg;
-
-		public AssetSpriteSheet() {
-
-		}
-
-		public TextureRegion[][] getRegions(String filename) {
-			tex = new Texture(Gdx.files.internal(filename));
-			reg = TextureRegion.split(tex, 32, 32);
-			return reg;
-		}
-
 	}
 
 	public class AssetFonts {
@@ -179,6 +156,15 @@ public class Assets implements Disposable, AssetErrorListener {
 		public AssetStairsDown(TextureAtlas atlas) {
 			reg = atlas.findRegion("stairsdown");
 		}
+	}
+
+	public class AssetMonster {
+		public final AtlasRegion reg;
+
+		public AssetMonster(TextureAtlas atlas) {
+			reg = atlas.findRegion("monster");
+		}
+
 	}
 
 }
