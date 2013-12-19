@@ -4,10 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Disposable;
 
 public class Assets implements Disposable, AssetErrorListener {
@@ -25,6 +28,7 @@ public class Assets implements Disposable, AssetErrorListener {
 	public AssetStairsUp stairsUp;
 	public AssetStairsDown stairsDown;
 	public AssetMonster monster;
+	public AssetPlayer player;
 
 	private void Assets() {
 	}
@@ -55,6 +59,8 @@ public class Assets implements Disposable, AssetErrorListener {
 		stairsUp = new AssetStairsUp(atlas);
 		stairsDown = new AssetStairsDown(atlas);
 		monster = new AssetMonster(atlas);
+		player = new AssetPlayer(atlas);
+
 	}
 
 	@Override
@@ -165,6 +171,14 @@ public class Assets implements Disposable, AssetErrorListener {
 			reg = atlas.findRegion("monster");
 		}
 
+	}
+
+	public class AssetPlayer {
+		public final AtlasRegion reg;
+
+		public AssetPlayer(TextureAtlas atlas) {
+			reg = atlas.findRegion("player");
+		}
 	}
 
 }

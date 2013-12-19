@@ -1,13 +1,16 @@
 package com.undeadstudio.quest.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.undeadstudio.quest.controller.PlayerController;
 import com.undeadstudio.quest.dungeon.CaveGen;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.entities.Monster;
+import com.undeadstudio.quest.entities.Player;
 import com.undeadstudio.quest.tiles.Chest;
 import com.undeadstudio.quest.tiles.Corridor;
 import com.undeadstudio.quest.tiles.Door;
@@ -42,6 +45,9 @@ public class Level {
 		}
 	}
 
+	InputMultiplexer input = new InputMultiplexer();
+	PlayerController conPlayer;
+
 	Array<Floor> floors = new Array<Floor>();
 	Array<Wall> walls = new Array<Wall>();
 	Array<Door> doors = new Array<Door>();
@@ -49,12 +55,14 @@ public class Level {
 	Array<Chest> chests = new Array<Chest>();
 	Array<Tile> stairs = new Array<Tile>();
 	Array<AbstractEntity> monsters = new Array<AbstractEntity>();
+	Array<Player> players = new Array<Player>();
 
 	public Level() {
 		init();
 	}
 
 	private void init() {
+		Gdx.input.setInputProcessor(input);
 		String filename = "test";
 
 		// DunGen.instance.setChanceRoom(75);
@@ -77,6 +85,17 @@ public class Level {
 
 		sprinkleMonsters(10);
 
+		sprinklePlayer();
+
+	}
+
+	public void sprinklePlayer() {
+		AbstractEntity entity = null;
+		Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
+		entity = new Player(freePlace.x, freePlace.y);
+		players.add((Player) entity);
+		conPlayer = new PlayerController((Player) entity);
+		input.addProcessor(conPlayer);
 	}
 
 	public void sprinkleStairs() {
@@ -195,6 +214,10 @@ public class Level {
 			entity.render(batch);
 		}
 
+		for (Player player : players) {
+			player.render(batch);
+		}
+
 	}
 
 	public void update(float deltaTime) {
@@ -225,6 +248,10 @@ public class Level {
 		for (AbstractEntity entity : monsters) {
 			entity.update(deltaTime);
 		}
+
+		for (Player player : players) {
+			player.update(deltaTime);
+		}
 	}
 
 	public Vector2 findFreePlace(int blockType) {
@@ -236,6 +263,11 @@ public class Level {
 		default:
 			return null;
 		}
+	}
+
+	public static void move(AbstractEntity entity, float x, float y) {
+		entity.position.x += x;
+		entity.position.y += y;
 	}
 
 }

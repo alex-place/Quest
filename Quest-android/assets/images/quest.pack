@@ -45,30 +45,37 @@ open
   orig: 32, 32
   offset: 0, 0
   index: -1
-rock
+player
   rotate: false
   xy: 205, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-stairsdown
+rock
   rotate: false
   xy: 239, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-stairsup
+stairsdown
   rotate: false
   xy: 273, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-wall
+stairsup
   rotate: false
   xy: 307, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+wall
+  rotate: false
+  xy: 341, 1
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
