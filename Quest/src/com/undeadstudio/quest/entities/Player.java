@@ -2,9 +2,11 @@ package com.undeadstudio.quest.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.undeadstudio.quest.map.Level;
+import com.undeadstudio.quest.tiles.Chest;
 import com.undeadstudio.quest.util.Assets;
 
-public class Player extends AbstractEntity {
+public class Player extends AbstractCharacter {
 
 	private TextureRegion playerRegion;
 
@@ -16,6 +18,8 @@ public class Player extends AbstractEntity {
 
 	private void init() {
 		playerRegion = Assets.instance.player.reg;
+		str = 1;
+		hp = 5;
 	}
 
 	@Override
@@ -35,8 +39,31 @@ public class Player extends AbstractEntity {
 
 	@Override
 	public void interact(AbstractEntity entity) {
-		// TODO Auto-generated method stub
+		if (entity instanceof Chest) {
+			Chest chest = (Chest) entity;
+			if (chest.closed == false) {
+				Level.instance.chests.removeValue(chest, false);
+			} else {
+				chest.closed = false;
+			}
+		}
 
+		if (entity instanceof Monster) {
+			interactWithMonster((Monster) entity);
+		}
 	}
 
+	private void interactWithMonster(Monster monster) {
+		attack(monster);
+		defend(monster);
+	}
+
+	private void attack(Monster monster) {
+		monster.hp = 0;
+	}
+
+	private void defend(Monster monster) {
+		hp -= (monster.str /*- vit*/);
+
+	}
 }

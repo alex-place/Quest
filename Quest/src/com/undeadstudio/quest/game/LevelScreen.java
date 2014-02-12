@@ -46,7 +46,8 @@ public class LevelScreen implements Screen {
 
 		assetManager = new AssetManager();
 		Assets.instance.init(assetManager);
-		level = new Level();
+		level = level.instance;
+		helper.setTarget(level.getPlayer());
 
 	}
 

@@ -2,11 +2,15 @@ package com.undeadstudio.quest.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.undeadstudio.quest.tiles.Tile;
 import com.undeadstudio.quest.util.Assets;
 
-public class Monster extends AbstractEntity {
+public class Monster extends Tile {
 
 	private TextureRegion monsterRegion;
+
+	int hp = 1;
+	int str = 1;
 
 	public Monster(float x, float y) {
 		this.position.x = x;
@@ -16,11 +20,12 @@ public class Monster extends AbstractEntity {
 
 	private void init() {
 		monsterRegion = Assets.instance.monster.reg;
+		hp = 1;
+		str = 1;
 	}
 
 	@Override
 	public void update(float deltaTime) {
-		// TODO Auto-generated method stub
 
 	}
 

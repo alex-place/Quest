@@ -20,19 +20,20 @@ public class PlayerController implements InputProcessor {
 
 	@Override
 	public boolean keyUp(int keycode) {
+		Level.instance.moveMonsters();
 
 		switch (keycode) {
 		case Keys.W:
-			Level.move(player, 0, 1);
+			Level.instance.move(player, 0, 1);
 			break;
 		case Keys.S:
-			Level.move(player, 0, -1);
+			Level.instance.move(player, 0, -1);
 			break;
 		case Keys.A:
-			Level.move(player, -1, 0);
+			Level.instance.move(player, -1, 0);
 			break;
 		case Keys.D:
-			Level.move(player, 1, 0);
+			Level.instance.move(player, 1, 0);
 			break;
 
 		default:

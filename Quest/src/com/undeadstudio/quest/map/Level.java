@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.undeadstudio.quest.controller.PlayerController;
@@ -25,6 +26,8 @@ import com.undeadstudio.quest.util.LevelUtil;
 public class Level {
 
 	public static final String TAG = Level.class.getName();
+	
+	public static Level instance = new Level();
 
 	public enum BLOCK_TYPE {
 		EMPTY(0, 0, 0), // black
@@ -48,14 +51,18 @@ public class Level {
 	InputMultiplexer input = new InputMultiplexer();
 	PlayerController conPlayer;
 
-	Array<Floor> floors = new Array<Floor>();
-	Array<Wall> walls = new Array<Wall>();
-	Array<Door> doors = new Array<Door>();
-	Array<Corridor> corridors = new Array<Corridor>();
-	Array<Chest> chests = new Array<Chest>();
-	Array<Tile> stairs = new Array<Tile>();
-	Array<AbstractEntity> monsters = new Array<AbstractEntity>();
-	Array<Player> players = new Array<Player>();
+	public  Array<Floor> floors = new Array<Floor>();
+	public  Array<Wall> walls = new Array<Wall>();
+	public  Array<Door> doors = new Array<Door>();
+	public  Array<Corridor> corridors = new Array<Corridor>();
+	public  Array<Chest> chests = new Array<Chest>();
+	public  Array<Tile> stairs = new Array<Tile>();
+	public  Array<Monster> monsters = new Array<Monster>();
+	public  Array<Player> players = new Array<Player>();
+
+	public boolean[][] walkable;
+
+	public  Array<AbstractEntity> everything = new Array<AbstractEntity>();
 
 	public Level() {
 		init();
@@ -76,9 +83,22 @@ public class Level {
 		convert(LevelUtil.convertTextFile(filename));
 
 		sprinkleGoodies();
+
+		shrinkArrays();
+
+		everything.addAll(floors);
+		everything.addAll(walls);
+		everything.addAll(doors);
+		everything.addAll(corridors);
+		everything.addAll(chests);
+		everything.addAll(stairs);
+		everything.addAll(monsters);
+		everything.addAll(players);
+		everything.shrink();
+
 	}
 
-	public void sprinkleGoodies() {
+	private void sprinkleGoodies() {
 		sprinkleStairs();
 
 		sprinkleChests(10);
@@ -89,7 +109,17 @@ public class Level {
 
 	}
 
-	public void sprinklePlayer() {
+	private void shrinkArrays() {
+		chests.shrink();
+		corridors.shrink();
+		doors.shrink();
+		floors.shrink();
+		monsters.shrink();
+		players.shrink();
+		stairs.shrink();
+	}
+
+	private void sprinklePlayer() {
 		AbstractEntity entity = null;
 		Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
 		entity = new Player(freePlace.x, freePlace.y);
@@ -98,7 +128,7 @@ public class Level {
 		input.addProcessor(conPlayer);
 	}
 
-	public void sprinkleStairs() {
+	private void sprinkleStairs() {
 		AbstractEntity entity = null;
 		Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
 		entity = new StairsUp(freePlace.x, freePlace.y);
@@ -109,7 +139,7 @@ public class Level {
 		stairs.add((StairsDown) entity);
 	}
 
-	public void sprinkleChests(int number) {
+	private void sprinkleChests(int number) {
 
 		for (int x = 0; x < number; x++) {
 			AbstractEntity entity = null;
@@ -120,7 +150,7 @@ public class Level {
 
 	}
 
-	public void sprinkleMonsters(int number) {
+	private void sprinkleMonsters(int number) {
 		for (int x = 0; x < number; x++) {
 			AbstractEntity entity = null;
 			Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
@@ -129,22 +159,26 @@ public class Level {
 		}
 	}
 
-	public void convert(int[][] map) {
+	private void convert(int[][] map) {
 
 		if (map == null) {
 			Gdx.app.error(TAG, "Map conversion failed");
 			return;
 		}
 
+		walkable = new boolean[map.length][map.length];
+
 		AbstractEntity entity = null;
+		// We are assuming that the map read in is a perfect square
 		for (int y = 0; y < map.length; y++) {
 			for (int x = 0; x < map.length; x++) {
 				int type = map[x][y];
-
+				walkable[x][y] = false;
 				switch (type) {
 				case Constants.BLOCKTYPE_FLOOR:
 					entity = new Floor(x, y);
 					floors.add((Floor) entity);
+					walkable[x][y] = false;
 					break;
 				case Constants.BLOCKTYPE_WALL:
 					entity = new Wall(x, y);
@@ -153,10 +187,12 @@ public class Level {
 				case Constants.BLOCKTYPE_DOOR:
 					entity = new Door(x, y);
 					doors.add((Door) entity);
+					walkable[x][y] = false;
 					break;
 				case Constants.BLOCKTYPE_CORRIDOR:
 					entity = new Corridor(x, y);
 					corridors.add((Corridor) entity);
+					walkable[x][y] = false;
 				case Constants.BLOCKTYPE_BSPNODE:
 					break;
 				case Constants.BLOCKTYPE_EMPTY:
@@ -245,8 +281,9 @@ public class Level {
 			tile.update(deltaTime);
 		}
 
-		for (AbstractEntity entity : monsters) {
+		for (Monster entity : monsters) {
 			entity.update(deltaTime);
+
 		}
 
 		for (Player player : players) {
@@ -254,20 +291,108 @@ public class Level {
 		}
 	}
 
-	public Vector2 findFreePlace(int blockType) {
-		switch (blockType) {
+	private Vector2 findFreePlace(int blocktype) {
+		switch (blocktype) {
 		case Constants.BLOCKTYPE_FLOOR:
-			// return floors.get(MathUtils.random(0, floors.size)).position;
 			return floors.random().position;
-
+		case Constants.BLOCKTYPE_WALL:
+			return walls.random().position;
 		default:
+			System.out
+					.println("Level.findFreePlace() recieved unhandled blocktype: "
+							+ blocktype);
 			return null;
 		}
 	}
 
-	public static void move(AbstractEntity entity, float x, float y) {
-		entity.position.x += x;
-		entity.position.y += y;
+	public  AbstractEntity getCell(int blocktype, float x, float y) {
+		switch (blocktype) {
+
+		case Constants.BLOCKTYPE_FLOOR:
+			for (Floor floor : floors) {
+				if (floor.position.x == x && floor.position.y == y) {
+					System.out.println("x: " + floor.position.x + " y: "
+							+ floor.position.y);
+					return floor;
+				}
+			}
+			break;
+		case Constants.BLOCKTYPE_WALL:
+			for (Wall wall : walls) {
+				if (wall.position.x == x && wall.position.y == y) {
+					System.out.println("x: " + wall.position.x + " y: "
+							+ wall.position.y);
+					return wall;
+				}
+			}
+
+			break;
+		case Constants.BLOCKTYPE_CHEST:
+			for (Chest chest : chests) {
+				if (chest.position.x == x && chest.position.y == y) {
+					System.out.println("x: " + chest.position.x + " y: "
+							+ chest.position.y);
+					return chest;
+				}
+			}
+			break;
+
+		default:
+			System.out
+					.println("Level.getCell() recieved unhandled blocktype : "
+							+ blocktype);
+			break;
+		}
+
+		return null;
+	}
+
+	public void move(AbstractEntity entity, float x, float y) {
+
+		AbstractEntity tile = null;
+
+		tile = getCell(Constants.BLOCKTYPE_CHEST, entity.position.x + x,
+				entity.position.y + y);
+		if (tile instanceof Chest && entity instanceof Player) {
+			entity.interact(tile);
+
+			return;
+		}
+
+		tile = getCell(Constants.BLOCKTYPE_FLOOR, entity.position.x + x,
+				entity.position.y + y);
+
+		if (tile instanceof Floor) {
+
+			if (walkable[(int) (entity.position.x += x)][(int) (entity.position.y += y)]) {
+				entity.position.x += x;
+				entity.position.y += y;
+			}
+
+		}
+
+	}
+
+	public void moveMonsters() {
+		for (Monster entity : monsters) {
+			moveRandom(entity, 1);
+
+		}
+	}
+
+	public void moveRandom(AbstractEntity entity, int speed) {
+		if (MathUtils.randomBoolean(0.9f)) {
+			if (MathUtils.randomBoolean()) {
+				move(entity, MathUtils.random(-speed, speed), 0);
+			} else {
+				move(entity, 0, MathUtils.random(-speed, speed));
+
+			}
+		}
+	}
+
+	public Player getPlayer() {
+		return players.first();
 	}
 
 }
