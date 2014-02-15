@@ -38,7 +38,7 @@ public class LevelScreen implements Screen {
 		camera.update();
 
 		helper = new CameraHelper();
-		helper.setZoom(4);
+		helper.setZoom(1);
 		helper.setPosition(25, 20);
 		helper.applyTo(camera);
 

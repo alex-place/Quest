@@ -2,6 +2,7 @@ package com.undeadstudio.quest.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.undeadstudio.quest.headsupdisplay.HeadsUpDisplay;
 import com.undeadstudio.quest.map.Level;
 import com.undeadstudio.quest.tiles.Chest;
 import com.undeadstudio.quest.util.Assets;
@@ -24,8 +25,6 @@ public class Player extends AbstractCharacter {
 
 	@Override
 	public void update(float deltaTime) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -44,6 +43,7 @@ public class Player extends AbstractCharacter {
 			if (chest.closed == false) {
 				Level.instance.chests.removeValue(chest, false);
 			} else {
+				HeadsUpDisplay.chatMessage = "You open a chest" + "\n";
 				chest.closed = false;
 			}
 		}

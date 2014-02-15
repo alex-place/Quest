@@ -9,13 +9,20 @@ public class Monster extends Tile {
 
 	private TextureRegion monsterRegion;
 
-	int hp = 1;
-	int str = 1;
+	public int hp = 1;
+	public int str = 1;
+
+	private String name = "Bee";
 
 	public Monster(float x, float y) {
 		this.position.x = x;
 		this.position.y = y;
 		init();
+	}
+
+	public String getName() {
+		return name;
+
 	}
 
 	private void init() {

@@ -12,6 +12,7 @@ import com.undeadstudio.quest.dungeon.CaveGen;
 import com.undeadstudio.quest.entities.AbstractEntity;
 import com.undeadstudio.quest.entities.Monster;
 import com.undeadstudio.quest.entities.Player;
+import com.undeadstudio.quest.headsupdisplay.HeadsUpDisplay;
 import com.undeadstudio.quest.tiles.Chest;
 import com.undeadstudio.quest.tiles.Corridor;
 import com.undeadstudio.quest.tiles.Door;
@@ -26,7 +27,7 @@ import com.undeadstudio.quest.util.LevelUtil;
 public class Level {
 
 	public static final String TAG = Level.class.getName();
-	
+
 	public static Level instance = new Level();
 
 	public enum BLOCK_TYPE {
@@ -51,18 +52,16 @@ public class Level {
 	InputMultiplexer input = new InputMultiplexer();
 	PlayerController conPlayer;
 
-	public  Array<Floor> floors = new Array<Floor>();
-	public  Array<Wall> walls = new Array<Wall>();
-	public  Array<Door> doors = new Array<Door>();
-	public  Array<Corridor> corridors = new Array<Corridor>();
-	public  Array<Chest> chests = new Array<Chest>();
-	public  Array<Tile> stairs = new Array<Tile>();
-	public  Array<Monster> monsters = new Array<Monster>();
-	public  Array<Player> players = new Array<Player>();
+	public Array<Floor> floors = new Array<Floor>(Floor.class);
+	public Array<Wall> walls = new Array<Wall>(Wall.class);
+	public Array<Door> doors = new Array<Door>(Door.class);
+	public Array<Corridor> corridors = new Array<Corridor>(Corridor.class);
+	public Array<Chest> chests = new Array<Chest>(Chest.class);
+	public Array<Tile> stairs = new Array<Tile>(Tile.class);
+	public Array<Monster> monsters = new Array<Monster>(Monster.class);
+	public Array<Player> players = new Array<Player>(Player.class);
 
 	public boolean[][] walkable;
-
-	public  Array<AbstractEntity> everything = new Array<AbstractEntity>();
 
 	public Level() {
 		init();
@@ -85,16 +84,6 @@ public class Level {
 		sprinkleGoodies();
 
 		shrinkArrays();
-
-		everything.addAll(floors);
-		everything.addAll(walls);
-		everything.addAll(doors);
-		everything.addAll(corridors);
-		everything.addAll(chests);
-		everything.addAll(stairs);
-		everything.addAll(monsters);
-		everything.addAll(players);
-		everything.shrink();
 
 	}
 
@@ -282,6 +271,9 @@ public class Level {
 		}
 
 		for (Monster entity : monsters) {
+			if (entity.hp <= 0) {
+				monsters.removeValue(entity, false);
+			}
 			entity.update(deltaTime);
 
 		}
@@ -289,6 +281,7 @@ public class Level {
 		for (Player player : players) {
 			player.update(deltaTime);
 		}
+
 	}
 
 	private Vector2 findFreePlace(int blocktype) {
@@ -305,7 +298,7 @@ public class Level {
 		}
 	}
 
-	public  AbstractEntity getCell(int blocktype, float x, float y) {
+	public AbstractEntity getCell(int blocktype, float x, float y) {
 		switch (blocktype) {
 
 		case Constants.BLOCKTYPE_FLOOR:
@@ -359,6 +352,10 @@ public class Level {
 			return;
 		}
 
+		if (collideMonsters(getPlayer(), x, y) == true) {
+			return;
+		}
+
 		tile = getCell(Constants.BLOCKTYPE_FLOOR, entity.position.x + x,
 				entity.position.y + y);
 
@@ -371,6 +368,23 @@ public class Level {
 
 		}
 
+	}
+
+	public boolean collideMonsters(AbstractEntity entity, float x, float y) {
+
+		for (Monster monster : monsters.toArray()) {
+			if (monster.position.x == entity.position.x
+					&& monster.position.y == entity.position.y) {
+				monsters.removeValue(monster, true);
+
+				HeadsUpDisplay.chatColor = Color.RED;
+				HeadsUpDisplay.chatMessage = "You have slain a "
+						+ monster.getName();
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public void moveMonsters() {
