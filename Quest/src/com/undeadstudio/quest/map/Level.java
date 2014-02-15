@@ -26,7 +26,7 @@ import com.undeadstudio.quest.util.LevelUtil;
 public class Level {
 
 	public static final String TAG = Level.class.getName();
-
+	
 	public static Level instance = new Level();
 
 	public enum BLOCK_TYPE {
@@ -51,20 +51,20 @@ public class Level {
 	InputMultiplexer input = new InputMultiplexer();
 	PlayerController conPlayer;
 
-	public Array<Floor> floors = new Array<Floor>();
-	public Array<Wall> walls = new Array<Wall>();
-	public Array<Door> doors = new Array<Door>();
-	public Array<Corridor> corridors = new Array<Corridor>();
-	public Array<Chest> chests = new Array<Chest>();
-	public Array<Tile> stairs = new Array<Tile>();
-	public Array<Monster> monsters = new Array<Monster>();
-	public Array<Player> players = new Array<Player>();
+	public  Array<Floor> floors = new Array<Floor>();
+	public  Array<Wall> walls = new Array<Wall>();
+	public  Array<Door> doors = new Array<Door>();
+	public  Array<Corridor> corridors = new Array<Corridor>();
+	public  Array<Chest> chests = new Array<Chest>();
+	public  Array<Tile> stairs = new Array<Tile>();
+	public  Array<Monster> monsters = new Array<Monster>();
+	public  Array<Player> players = new Array<Player>();
 
-	public int mapSize = 0;
 	public boolean[][] walkable;
-	public boolean[][] chests2;
 
-	private Level() {
+	public  Array<AbstractEntity> everything = new Array<AbstractEntity>();
+
+	public Level() {
 		init();
 	}
 
@@ -85,6 +85,16 @@ public class Level {
 		sprinkleGoodies();
 
 		shrinkArrays();
+
+		everything.addAll(floors);
+		everything.addAll(walls);
+		everything.addAll(doors);
+		everything.addAll(corridors);
+		everything.addAll(chests);
+		everything.addAll(stairs);
+		everything.addAll(monsters);
+		everything.addAll(players);
+		everything.shrink();
 
 	}
 
@@ -131,15 +141,11 @@ public class Level {
 
 	private void sprinkleChests(int number) {
 
-		chests2 = new boolean[mapSize][mapSize];
-
 		for (int x = 0; x < number; x++) {
 			AbstractEntity entity = null;
 			Vector2 freePlace = findFreePlace(Constants.BLOCKTYPE_FLOOR);
 			entity = new Chest(freePlace.x, freePlace.y);
 			chests.add((Chest) entity);
-			chests2[(int) freePlace.x][(int) freePlace.y] = true;
-
 		}
 
 	}
@@ -160,8 +166,7 @@ public class Level {
 			return;
 		}
 
-		mapSize = map.length;
-		walkable = new boolean[mapSize][mapSize];
+		walkable = new boolean[map.length][map.length];
 
 		AbstractEntity entity = null;
 		// We are assuming that the map read in is a perfect square
@@ -300,7 +305,7 @@ public class Level {
 		}
 	}
 
-	public AbstractEntity getCell(int blocktype, float x, float y) {
+	public  AbstractEntity getCell(int blocktype, float x, float y) {
 		switch (blocktype) {
 
 		case Constants.BLOCKTYPE_FLOOR:
@@ -342,39 +347,27 @@ public class Level {
 		return null;
 	}
 
-	public boolean isChest(float x, float y) {
-		if (chests2[(int) x][(int) y]) {
-			Gdx.app.log(TAG, "This is definitly a chest");
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	public void move(AbstractEntity entity, float x, float y) {
 
 		AbstractEntity tile = null;
 
-		if (entity instanceof Player) {
-			if (getCell(Constants.BLOCKTYPE_CHEST, entity.position.x + x,
-					entity.position.y + y) instanceof Chest) {
-				entity.interact(getCell(Constants.BLOCKTYPE_CHEST,
-						entity.position.x + x, entity.position.y + y));
+		tile = getCell(Constants.BLOCKTYPE_CHEST, entity.position.x + x,
+				entity.position.y + y);
+		if (tile instanceof Chest && entity instanceof Player) {
+			entity.interact(tile);
 
-				return;
-			}
+			return;
 		}
 
 		tile = getCell(Constants.BLOCKTYPE_FLOOR, entity.position.x + x,
 				entity.position.y + y);
 
 		if (tile instanceof Floor) {
-			if (entity.position.x + x < mapSize
-					&& entity.position.y + y < mapSize)
-				if (walkable[(int) (entity.position.x += x)][(int) (entity.position.y += y)]) {
-					entity.position.x += x;
-					entity.position.y += y;
-				}
+
+			if (walkable[(int) (entity.position.x += x)][(int) (entity.position.y += y)]) {
+				entity.position.x += x;
+				entity.position.y += y;
+			}
 
 		}
 
