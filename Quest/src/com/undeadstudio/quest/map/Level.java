@@ -352,9 +352,10 @@ public class Level {
 			return;
 		}
 
-		if (collideMonsters(getPlayer(), x, y) == true) {
-			return;
-		}
+		if (entity instanceof Player)
+			if (collideMonsters(getPlayer(), x, y) == true) {
+				return;
+			}
 
 		tile = getCell(Constants.BLOCKTYPE_FLOOR, entity.position.x + x,
 				entity.position.y + y);
@@ -373,8 +374,8 @@ public class Level {
 	public boolean collideMonsters(AbstractEntity entity, float x, float y) {
 
 		for (Monster monster : monsters.toArray()) {
-			if (monster.position.x == entity.position.x
-					&& monster.position.y == entity.position.y) {
+			if (monster.position.x == entity.position.x + x
+					&& monster.position.y == entity.position.y + y) {
 				monsters.removeValue(monster, true);
 
 				HeadsUpDisplay.chatColor = Color.RED;
