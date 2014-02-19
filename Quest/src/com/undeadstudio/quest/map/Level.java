@@ -49,8 +49,8 @@ public class Level {
 		}
 	}
 
-	InputMultiplexer input = new InputMultiplexer();
-	PlayerController conPlayer;
+	public PlayerController conPlayer;
+	public InputMultiplexer input = new InputMultiplexer();
 
 	public Array<Floor> floors = new Array<Floor>(Floor.class);
 	public Array<Wall> walls = new Array<Wall>(Wall.class);
@@ -68,7 +68,7 @@ public class Level {
 	}
 
 	private void init() {
-		Gdx.input.setInputProcessor(input);
+
 		String filename = "test";
 
 		// DunGen.instance.setChanceRoom(75);
@@ -115,6 +115,9 @@ public class Level {
 		players.add((Player) entity);
 		conPlayer = new PlayerController((Player) entity);
 		input.addProcessor(conPlayer);
+		//input.addProcessor(HeadsUpDisplay.instance.stage);
+		Gdx.input.setInputProcessor(input);
+
 	}
 
 	private void sprinkleStairs() {

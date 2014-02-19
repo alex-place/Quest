@@ -43,7 +43,7 @@ public class Player extends AbstractCharacter {
 			if (chest.closed == false) {
 				Level.instance.chests.removeValue(chest, false);
 			} else {
-				HeadsUpDisplay.chatMessage = "You open a chest" + "\n";
+				//HeadsUpDisplay.chatMessage = "You open a chest" + "\n";
 				chest.closed = false;
 			}
 		}

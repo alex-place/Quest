@@ -1,9 +1,10 @@
 package com.undeadstudio.quest.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Application.ApplicationType;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,6 +17,7 @@ import com.undeadstudio.quest.util.Constants;
 
 public class LevelScreen implements Screen {
 
+	InputMultiplexer input;
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	CameraHelper helper;
@@ -42,11 +44,10 @@ public class LevelScreen implements Screen {
 		helper.setPosition(25, 20);
 		helper.applyTo(camera);
 
-		hud = new HeadsUpDisplay();
-
 		assetManager = new AssetManager();
 		Assets.instance.init(assetManager);
-		level = level.instance;
+		level = Level.instance;
+		hud = HeadsUpDisplay.instance;
 		helper.setTarget(level.getPlayer());
 
 	}
@@ -86,6 +87,7 @@ public class LevelScreen implements Screen {
 		batch.begin();
 		hud.render(batch);
 		batch.end();
+
 	}
 
 	private void moveCamera(float x, float y) {
@@ -136,7 +138,7 @@ public class LevelScreen implements Screen {
 		camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / (float) height)
 				* (float) width;
 		camera.update();
-		hud.resize(width, height);
+		HeadsUpDisplay.instance.resize(width, height);
 	}
 
 	@Override
@@ -163,6 +165,7 @@ public class LevelScreen implements Screen {
 
 	@Override
 	public void dispose() {
+		HeadsUpDisplay.instance.dispose();
 		batch.dispose();
 		assetManager.dispose();
 		Assets.instance.dispose();

@@ -3,6 +3,7 @@ package com.undeadstudio.quest;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.undeadstudio.quest.game.LevelScreen;
+import com.undeadstudio.quest.game.ScrollTestScreen;
 
 public class QuestMain extends Game {
 
@@ -13,7 +14,8 @@ public class QuestMain extends Game {
 	@Override
 	public void create() {
 
-		setScreen(new LevelScreen());
+		 setScreen(new LevelScreen());
+//		setScreen(new ScrollTestScreen());
 		Gdx.app.log("Quest", "Launching a new Quest!");
 	}
 
