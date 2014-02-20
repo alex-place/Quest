@@ -1,11 +1,17 @@
 package com.undeadstudio.quest.util;
 
+import com.esotericsoftware.tablelayout.Value;
+
 public class Constants {
 
 	public static final float VIEWPORT_WIDTH = 10;
 	public static final float VIEWPORT_HEIGHT = 10;
+
 	public static final float VIEWPORT_HUD_WIDTH = 480.0f;
 	public static final float VIEWPORT_HUD_HEIGHT = 320.0f;
+
+	public static final float CHATLOG_WIDTH = 200.0f;
+	public static final float CHATLOG_HEIGHT = 200.0f;
 
 	public static final String TEXTURE_ATLAS_OBJECTS = "images/quest.pack";
 

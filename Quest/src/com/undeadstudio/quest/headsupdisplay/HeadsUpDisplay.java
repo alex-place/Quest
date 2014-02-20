@@ -26,7 +26,8 @@ public class HeadsUpDisplay {
 	public static String chatMessage = "";
 	public static Stage stage;
 
-	private static final String reallyLongString = "This\nIs\nA\nReally\nLong\nString\nThat\nHas\nLots\nOf\nLines\nAnd\nRepeats.\n"
+	private static final String reallyLongString = "This is a really awesome chat log for chatting with your besties and killing stuff and exploring dungeons and stuff"
+			+ "This\nIs\nA\nReally\nLong\nString\nThat\nHas\nLots\nOf\nLines\nAnd\nRepeats.\n"
 			+ "This\nIs\nA\nReally\nLong\nString\nThat\nHas\nLots\nOf\nLines\nAnd\nRepeats.\n"
 			+ "This\nIs\nA\nReally\nLong\nString\nThat\nHas\nLots\nOf\nLines\nAnd\nRepeats.\n";
 
@@ -45,6 +46,11 @@ public class HeadsUpDisplay {
 		camera.setToOrtho(true); // flip y-axis
 		camera.update();
 
+		initChatLog();
+
+	}
+
+	public void initChatLog() {
 		stage = new Stage(Constants.VIEWPORT_HUD_WIDTH,
 				Constants.VIEWPORT_HUD_HEIGHT);
 		Level.instance.input.addProcessor(stage);
@@ -52,32 +58,35 @@ public class HeadsUpDisplay {
 		final Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
 
 		final Label text = new Label(reallyLongString, skin);
-		text.setAlignment(Align.center);
+		text.setAlignment(Align.left);
 		text.setWrap(true);
 		final Label text2 = new Label("This is a short string!", skin);
-		text2.setAlignment(Align.center);
+		text2.setAlignment(Align.left);
 		text2.setWrap(true);
 		final Label text3 = new Label(reallyLongString, skin);
-		text3.setAlignment(Align.center);
+		text3.setAlignment(Align.left);
 		text3.setWrap(true);
 
 		final Table scrollTable = new Table();
-		scrollTable.add(text);
+		scrollTable.align(Align.left);
+		scrollTable.add(text).width(Constants.CHATLOG_WIDTH);
 		scrollTable.row();
-		scrollTable.add(text2);
+		scrollTable.add(text2).width(Constants.CHATLOG_WIDTH);
 		scrollTable.row();
-		scrollTable.add(text3);
+		scrollTable.add(text3).width(Constants.CHATLOG_WIDTH);
 
 		final ScrollPane scroller = new ScrollPane(scrollTable);
 
 		final Table table = new Table();
-		table.setSize(150, 100);
-		table.padBottom(20);
-		table.defaults().prefSize(200, 100);
+		table.setSize(480, 320);
+		table.setPosition(0, 0);
+		// table.padBottom(20);
+		// table.defaults().prefSize(200, 100);
 		table.add(scroller).fill().expand();
+		// table.setPosition(-Constants.VIEWPORT_HUD_WIDTH / 2, 0);
+		table.align(Align.left);
 
 		this.stage.addActor(table);
-
 	}
 
 	public void render(SpriteBatch batch) {
@@ -85,6 +94,7 @@ public class HeadsUpDisplay {
 		renderVersion(batch);
 		renderSimpleChat(batch);
 		renderStage();
+		Table.drawDebug(stage);
 
 	}
 
@@ -147,33 +157,7 @@ public class HeadsUpDisplay {
 				camera.viewportHeight / 2, 0);
 		camera.update();
 
-		// Gdx.input.setInputProcessor(this.stage);
-		final Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
-
-		final Label text = new Label(reallyLongString, skin);
-		text.setAlignment(Align.center);
-		text.setWrap(true);
-		final Label text2 = new Label("This is a short string!", skin);
-		text2.setAlignment(Align.center);
-		text2.setWrap(true);
-		final Label text3 = new Label(reallyLongString, skin);
-		text3.setAlignment(Align.center);
-		text3.setWrap(true);
-
-		final Table scrollTable = new Table();
-		scrollTable.add(text);
-		scrollTable.row();
-		scrollTable.add(text2);
-		scrollTable.row();
-		scrollTable.add(text3);
-
-		final ScrollPane scroller = new ScrollPane(scrollTable);
-
-		final Table table = new Table();
-		table.setSize(150, 100);
-		table.padBottom(20);
-		table.defaults().prefSize(200, 100);
-		table.add(scroller).fill().expand();
+		initChatLog();
 
 	}
 
