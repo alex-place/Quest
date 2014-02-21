@@ -1,5 +1,6 @@
 package com.undeadstudio.quest.entities;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.undeadstudio.quest.headsupdisplay.HeadsUpDisplay;
@@ -43,7 +44,8 @@ public class Player extends AbstractCharacter {
 			if (chest.closed == false) {
 				Level.instance.chests.removeValue(chest, false);
 			} else {
-				//HeadsUpDisplay.chatMessage = "You open a chest" + "\n";
+				HeadsUpDisplay.instance.addMessage("You open a chest",
+						Color.GREEN);
 				chest.closed = false;
 			}
 		}

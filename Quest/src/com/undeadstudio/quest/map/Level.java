@@ -90,9 +90,9 @@ public class Level {
 	private void sprinkleGoodies() {
 		sprinkleStairs();
 
-		sprinkleChests(10);
+		sprinkleChests(5);
 
-		sprinkleMonsters(10);
+		sprinkleMonsters(15);
 
 		sprinklePlayer();
 
@@ -115,7 +115,7 @@ public class Level {
 		players.add((Player) entity);
 		conPlayer = new PlayerController((Player) entity);
 		input.addProcessor(conPlayer);
-		//input.addProcessor(HeadsUpDisplay.instance.stage);
+		// input.addProcessor(HeadsUpDisplay.instance.stage);
 		Gdx.input.setInputProcessor(input);
 
 	}
@@ -302,13 +302,15 @@ public class Level {
 	}
 
 	public AbstractEntity getCell(int blocktype, float x, float y) {
-		switch (blocktype) {
 
+		switch (blocktype) {
+		case Constants.BLOCKTYPE_STAIRS_DOWN:
+			break;
+		case Constants.BLOCKTYPE_STAIRS_UP:
+			break;
 		case Constants.BLOCKTYPE_FLOOR:
 			for (Floor floor : floors) {
 				if (floor.position.x == x && floor.position.y == y) {
-					System.out.println("x: " + floor.position.x + " y: "
-							+ floor.position.y);
 					return floor;
 				}
 			}
@@ -316,34 +318,40 @@ public class Level {
 		case Constants.BLOCKTYPE_WALL:
 			for (Wall wall : walls) {
 				if (wall.position.x == x && wall.position.y == y) {
-					System.out.println("x: " + wall.position.x + " y: "
-							+ wall.position.y);
 					return wall;
 				}
 			}
-
 			break;
 		case Constants.BLOCKTYPE_CHEST:
 			for (Chest chest : chests) {
 				if (chest.position.x == x && chest.position.y == y) {
-					System.out.println("x: " + chest.position.x + " y: "
-							+ chest.position.y);
 					return chest;
 				}
 			}
 			break;
-
 		default:
 			System.out
 					.println("Level.getCell() recieved unhandled blocktype : "
 							+ blocktype);
 			break;
 		}
-
 		return null;
 	}
 
 	public void move(AbstractEntity entity, float x, float y) {
+
+		if (entity instanceof Player) {
+			if (collideMonsters(getPlayer(), x, y) == true) {
+				return;
+			}
+
+			if (isStairsDown(entity.position.x + x, entity.position.y + y)
+					|| isStairsUp(entity.position.x + x, entity.position.y + y)) {
+				HeadsUpDisplay.instance.addMessage(
+						"You don't want to explore anywhere but here.",
+						Color.YELLOW);
+			}
+		}
 
 		AbstractEntity tile = null;
 
@@ -354,11 +362,6 @@ public class Level {
 
 			return;
 		}
-
-		if (entity instanceof Player)
-			if (collideMonsters(getPlayer(), x, y) == true) {
-				return;
-			}
 
 		tile = getCell(Constants.BLOCKTYPE_FLOOR, entity.position.x + x,
 				entity.position.y + y);
@@ -374,6 +377,28 @@ public class Level {
 
 	}
 
+	public boolean isStairsDown(float x, float y) {
+		for (AbstractEntity entity : stairs) {
+			if (entity.position.x == x && entity.position.y == y) {
+				if (entity instanceof StairsDown) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean isStairsUp(float x, float y) {
+		for (AbstractEntity entity : stairs) {
+			if (entity.position.x == x && entity.position.y == y) {
+				if (entity instanceof StairsUp) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public boolean collideMonsters(AbstractEntity entity, float x, float y) {
 
 		for (Monster monster : monsters.toArray()) {
@@ -381,9 +406,8 @@ public class Level {
 					&& monster.position.y == entity.position.y + y) {
 				monsters.removeValue(monster, true);
 
-				HeadsUpDisplay.chatColor = Color.RED;
-				HeadsUpDisplay.chatMessage = "You have slain a "
-						+ monster.getName();
+				HeadsUpDisplay.instance.addMessage("You have slain a "
+						+ monster.getName(), Color.RED);
 				return true;
 			}
 		}

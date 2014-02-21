@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -119,6 +120,9 @@ public class LevelScreen implements Screen {
 			moveCamera(0, -camMoveSpeed);
 		if (Gdx.input.isKeyPressed(Keys.BACKSPACE))
 			helper.setPosition(0, 0);
+		if (Gdx.input.isKeyPressed(Keys.SPACE))
+			HeadsUpDisplay.instance.addMessage("Debug Test " + Math.random(),
+					Color.RED);
 
 		// Camera Controls (zoom)
 		float camZoomSpeed = 1 * deltaTime;

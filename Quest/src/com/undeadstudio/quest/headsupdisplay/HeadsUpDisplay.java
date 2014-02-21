@@ -1,8 +1,9 @@
 package com.undeadstudio.quest.headsupdisplay;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.Align;
+import com.esotericsoftware.tablelayout.Cell;
 import com.undeadstudio.quest.QuestMain;
 import com.undeadstudio.quest.map.Level;
 import com.undeadstudio.quest.util.Assets;
@@ -21,15 +23,20 @@ public class HeadsUpDisplay {
 
 	public OrthographicCamera camera;
 
+	final Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+
 	// For the chat log
+	final Table scrollTable = new Table();
+	private ScrollPane scroller;
+	final Table table = new Table();
+
 	public static Color chatColor = Color.WHITE;
 	public static String chatMessage = "";
 	public static Stage stage;
 
-	private static final String reallyLongString = "This is a really awesome chat log for chatting with your besties and killing stuff and exploring dungeons and stuff"
-			+ "This\nIs\nA\nReally\nLong\nString\nThat\nHas\nLots\nOf\nLines\nAnd\nRepeats.\n"
-			+ "This\nIs\nA\nReally\nLong\nString\nThat\nHas\nLots\nOf\nLines\nAnd\nRepeats.\n"
-			+ "This\nIs\nA\nReally\nLong\nString\nThat\nHas\nLots\nOf\nLines\nAnd\nRepeats.\n";
+	// For the fps counter
+	int fps = Gdx.graphics.getFramesPerSecond();
+	Label fpsLabel = new Label("FPS : " + fps, skin);
 
 	private HeadsUpDisplay() {
 		init();
@@ -47,6 +54,7 @@ public class HeadsUpDisplay {
 		camera.update();
 
 		initChatLog();
+		initFPSCounter();
 
 	}
 
@@ -55,73 +63,65 @@ public class HeadsUpDisplay {
 				Constants.VIEWPORT_HUD_HEIGHT);
 		Level.instance.input.addProcessor(stage);
 
-		final Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+		scroller = new ScrollPane(scrollTable);
 
-		final Label text = new Label(reallyLongString, skin);
-		text.setAlignment(Align.left);
-		text.setWrap(true);
-		final Label text2 = new Label("This is a short string!", skin);
-		text2.setAlignment(Align.left);
-		text2.setWrap(true);
-		final Label text3 = new Label(reallyLongString, skin);
-		text3.setAlignment(Align.left);
-		text3.setWrap(true);
-
-		final Table scrollTable = new Table();
-		scrollTable.align(Align.left);
-		scrollTable.add(text).width(Constants.CHATLOG_WIDTH);
-		scrollTable.row();
-		scrollTable.add(text2).width(Constants.CHATLOG_WIDTH);
-		scrollTable.row();
-		scrollTable.add(text3).width(Constants.CHATLOG_WIDTH);
-
-		final ScrollPane scroller = new ScrollPane(scrollTable);
-
-		final Table table = new Table();
-		table.setSize(480, 320);
+		table.setSize(Constants.CHATLOG_WIDTH, Constants.CHATLOG_HEIGHT);
 		table.setPosition(0, 0);
-		// table.padBottom(20);
-		// table.defaults().prefSize(200, 100);
+		table.padBottom(20);
 		table.add(scroller).fill().expand();
-		// table.setPosition(-Constants.VIEWPORT_HUD_WIDTH / 2, 0);
-		table.align(Align.left);
 
-		this.stage.addActor(table);
+		HeadsUpDisplay.stage.addActor(table);
+	}
+
+	public void addMessage(String message, Color color) {
+		Label label = new Label(message, skin);
+		label.setWrap(true);
+		label.setColor(color);
+		label.setFontScale(0.5f);
+		scrollTable.add(label).width(Constants.CHATLOG_WIDTH);
+		scrollTable.row();
 	}
 
 	public void render(SpriteBatch batch) {
-		renderFPSCounter(batch);
-		renderVersion(batch);
-		renderSimpleChat(batch);
+		scroller.setScrollPercentY(1);
 		renderStage();
 		Table.drawDebug(stage);
+
+		renderFPSCounter();
 
 	}
 
 	public void renderStage() {
-		stage.act();
+		stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
 		stage.draw();
 	}
 
-	private void renderFPSCounter(SpriteBatch batch) {
+	private void initFPSCounter() {
 		float x = camera.viewportWidth - 55;
 		float y = camera.viewportHeight - 15;
-		int fps = Gdx.graphics.getFramesPerSecond();
-		BitmapFont fpsFont = Assets.instance.fonts.defaultNormal;
+
+		fpsLabel.setPosition(50, 50);
+
+		
+
+		stage.addActor(fpsLabel);
+
+	}
+
+	public void renderFPSCounter() {
+		fps = Gdx.graphics.getFramesPerSecond();
 		if (fps >= 45) {
 			// 45 or more FPS show up in green
-			fpsFont.setColor(0, 1, 0, 1);
+			fpsLabel.setColor(0, 1, 0, 1);
 		} else if (fps >= 30) {
 			// 30 or more FPS show up in yellow
-			fpsFont.setColor(1, 1, 0, 1);
+			fpsLabel.setColor(1, 1, 0, 1);
 		} else {
 			// less than 30 FPS show up in red
-			fpsFont.setColor(1, 0, 0, 1);
+			fpsLabel.setColor(1, 0, 0, 1);
 		}
-
-		fpsFont.draw(batch, "FPS: " + fps, x, y);
-		fpsFont.setColor(1, 1, 1, 1); // white
-
+		fpsLabel.setText("FPS: " + fps);
+		// Label fpsLabel = new Label("FPS : " + fps, skin);
 	}
 
 	private void renderVersion(SpriteBatch batch) {
@@ -157,7 +157,15 @@ public class HeadsUpDisplay {
 				camera.viewportHeight / 2, 0);
 		camera.update();
 
-		initChatLog();
+		stage.setViewport(Constants.VIEWPORT_HUD_WIDTH,
+				Constants.VIEWPORT_HEIGHT, true);
+		if (table != null) {
+			table.setSize(Constants.VIEWPORT_HUD_WIDTH,
+					Constants.VIEWPORT_HUD_HEIGHT);
+			table.bottom().left();
+			scrollTable.bottom().left();
+
+		}
 
 	}
 
